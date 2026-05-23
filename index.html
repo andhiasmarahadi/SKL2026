@@ -498,10 +498,10 @@
         // SAKLAR DEPLOYMENT & KONFIGURASI UTAMA
         // =========================================================================
         // UBAH IS_PREVIEW KE false JIKA AKAN DI-PASTE KE BLOGGER
-        const IS_PREVIEW = false; 
+        const IS_PREVIEW = true; 
         
         // PASTE URL WEBAPP GOOGLE APPS SCRIPT ANDA DI SINI (Wajib diawali https://)
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxkZDGG31MzMc9LUo52HKtoETRsgLDd-jrJKqW0VavXQx61-x8Szbt4vViqIxqbcjNi/exec"; 
+        const GAS_URL = "URL_DEPLOY_GAS_ANDA_DISINI"; 
         // =========================================================================
 
         let targetDate = new Date().getTime() + (1000 * 5); // Dummy 5 detik
@@ -845,40 +845,72 @@
                     
                     imgFrame.onload = () => {
                         const cvs = document.createElement('canvas');
-                        cvs.width = 1080; 
-                        cvs.height = 1080;
+                        
+                        // 1. MENGGUNAKAN UKURAN ASLI FRAME TWIBBON
+                        // Menghindari bingkai menjadi gepeng/melar jika rasionya bukan 1:1
+                        const frameW = imgFrame.width || 1080;
+                        const frameH = imgFrame.height || 1080;
+                        cvs.width = frameW; 
+                        cvs.height = frameH;
+                        
                         const ctx = cvs.getContext('2d');
                         const d = currentUserData;
 
-                        ctx.drawImage(imgSelfie, 0, 0, 1080, 1080);
-                        ctx.drawImage(imgFrame, 0, 0, 1080, 1080);
-
-                        ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
-                        ctx.shadowBlur = 8;
-                        ctx.shadowOffsetX = 2;
-                        ctx.shadowOffsetY = 2;
+                        // 2. MENGATUR POSISI FOTO SELFIE DI BELAKANG BINGKAI
+                        // Pastikan foto menutupi seluruh area dengan proporsional (Center)
+                        const fotoSize = Math.max(frameW, frameH); 
+                        const fotoX = (frameW - fotoSize) / 2;
+                        const fotoY = (frameH - fotoSize) / 2;
                         
-                        ctx.font = 'bold 55px "Inter", sans-serif';
+                        // Jika wajah terasa terlalu ke bawah/atas, Anda bisa ubah angka 0 di bawah ini:
+                        // Contoh: const geserY = -50; (untuk menaikkan foto)
+                        const geserY = 0; 
+                        
+                        ctx.drawImage(imgSelfie, fotoX, fotoY + geserY, fotoSize, fotoSize);
+
+                        // 3. MENGGAMBAR FRAME TWIBBON DI DEPAN
+                        ctx.drawImage(imgFrame, 0, 0, frameW, frameH);
+
+                        // 4. PENGATURAN POSISI TEKS NAMA (DINAMIS)
+                        ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+                        ctx.shadowBlur = 5;
+                        ctx.shadowOffsetX = 1;
+                        ctx.shadowOffsetY = 1;
+                        
+                        // Ukuran font otomatis menyesuaikan resolusi (sekitar 4.5% dari lebar gambar)
+                        const fontSize = Math.floor(frameW * 0.045); 
+                        ctx.font = `bold ${fontSize}px "Inter", sans-serif`;
                         ctx.fillStyle = '#FFFFFF'; 
                         ctx.textAlign = 'center'; 
                         
-                        let namaSiswa = (d?.Nama_Siswa || 'Siswa').length > 25 ? (d?.Nama_Siswa || 'Siswa').substring(0, 25) + '...' : (d?.Nama_Siswa || 'Siswa');
+                        // TITIK KOORDINAT NAMA:
+                        // textX = frameW / 2 (Artinya rata tengah persis dari kiri-kanan)
+                        const textX = frameW / 2; 
                         
-                        ctx.fillText(namaSiswa, 540, 1020); 
+                        // textY = frameH * 0.85 (Artinya posisi nama berada di 85% dari atas gambar)
+                        // JIKA NAMA TERLALU KE BAWAH: Ubah 0.85 menjadi 0.80 atau 0.75
+                        // JIKA NAMA TERLALU KE ATAS: Ubah 0.85 menjadi 0.90 atau 0.95
+                        const textY = frameH * 0.85; 
+                        
+                        let namaSiswa = (d?.Nama_Siswa || 'Siswa Resmi').toUpperCase();
+                        
+                        // Cetak nama dengan batas maksimal lebar 80% dari bingkai
+                        // (agar nama yang panjang tidak meluber keluar dari desain)
+                        ctx.fillText(namaSiswa, textX, textY, frameW * 0.8); 
 
+                        // Reset shadow
                         ctx.shadowBlur = 0;
                         ctx.shadowOffsetX = 0;
                         ctx.shadowOffsetY = 0;
 
-                        resolve(cvs.toDataURL('image/jpeg', 0.95));
+                        // Gunakan format PNG agar gambar jauh lebih jernih dan tidak pecah
+                        resolve(cvs.toDataURL('image/png', 1.0));
                     };
                     
                     imgFrame.onerror = () => {
                         reject(new Error('Twibbon frame failed to load.'));
                     };
                     
-                    // MENGATASI ERROR CORS: Gunakan layanan proxy WSVR agar Canvas tidak 'tainted' oleh server Imghippo
-                    // Penambahan &output=png wajib agar background twibbon tetap transparan
                     const frameUrl = "https://i.imghippo.com/files/tWv8725z.png";
                     imgFrame.src = "https://wsrv.nl/?url=" + encodeURIComponent(frameUrl) + "&output=png";
                 };
