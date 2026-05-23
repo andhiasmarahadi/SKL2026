@@ -372,7 +372,7 @@
                         </div>
                     </div>
                     
-                    <div id="tabel-siswa-body" class="flex flex-col bg-white min-h-[300px]">
+                    <div id="tabel-siswa-body" class="flex flex-col bg-white min-h-[300px] overflow-y-auto max-h-[55vh] pb-24">
                         <!-- Skeletons -->
                         <div class="p-4 border-b border-gray-100 flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full skeleton"></div>
@@ -792,9 +792,15 @@
             const btnCap = document.getElementById('btn-capture');
             const btnProc = document.getElementById('btn-processing');
             
-            // Perbaikan Aspek Rasio (Square Crop)
-            const videoW = video.videoWidth;
-            const videoH = video.videoHeight;
+            // Perbaikan Aspek Rasio (Square Crop) & Cegah Error Ukuran 0 di HP
+            const videoW = video.videoWidth || video.clientWidth || 640;
+            const videoH = video.videoHeight || video.clientHeight || 640;
+            
+            if(videoW === 0 || videoH === 0) {
+                Swal.fire({ icon: 'warning', title: 'Kamera Belum Siap', text: 'Tunggu beberapa detik hingga kamera muncul dengan jelas.', confirmButtonColor: '#262626' });
+                return;
+            }
+            
             const cropSize = Math.min(videoW, videoH);
             
             // Set canvas target 1080x1080 untuk resolusi bagus
@@ -823,7 +829,7 @@
                 document.getElementById('step-hasil').style.display = 'flex';
             } catch (e) {
                 console.error(e);
-                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan memproses gambar.', confirmButtonColor: '#ED4956' });
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan memproses gambar Twibbon.', confirmButtonColor: '#ED4956' });
             } finally {
                 btnCap.classList.remove('hidden');
                 btnProc.classList.add('hidden');
@@ -835,7 +841,6 @@
                 const imgSelfie = new Image();
                 imgSelfie.onload = () => {
                     const imgFrame = new Image();
-                    // Sangat Penting: Untuk menghindari error CORS saat mengambil gambar eksternal di Canvas
                     imgFrame.crossOrigin = "Anonymous"; 
                     
                     imgFrame.onload = () => {
@@ -845,30 +850,22 @@
                         const ctx = cvs.getContext('2d');
                         const d = currentUserData;
 
-                        // 1. Gambar Base Foto (Selfie dari Kamera yang sudah dipotong kotak)
                         ctx.drawImage(imgSelfie, 0, 0, 1080, 1080);
-
-                        // 2. Tumpuk dengan Frame Twibbon Eksternal
                         ctx.drawImage(imgFrame, 0, 0, 1080, 1080);
 
-                        // 3. Nama Siswa di atas Twibbon
-                        // Menambahkan efek shadow agar tulisan tetap terbaca pada desain apa pun
                         ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
                         ctx.shadowBlur = 8;
                         ctx.shadowOffsetX = 2;
                         ctx.shadowOffsetY = 2;
                         
                         ctx.font = 'bold 55px "Inter", sans-serif';
-                        ctx.fillStyle = '#FFFFFF'; // Warna font putih
-                        ctx.textAlign = 'center'; // Rata tengah
+                        ctx.fillStyle = '#FFFFFF'; 
+                        ctx.textAlign = 'center'; 
                         
                         let namaSiswa = (d?.Nama_Siswa || 'Siswa').length > 25 ? (d?.Nama_Siswa || 'Siswa').substring(0, 25) + '...' : (d?.Nama_Siswa || 'Siswa');
                         
-                        // Letakkan teks nama di koordinat tengah bawah (X: 540, Y: 1020)
-                        // Catatan: Anda bisa mengubah angka 1020 ke angka lain jika posisi teks kurang pas atas/bawah di desainnya.
                         ctx.fillText(namaSiswa, 540, 1020); 
 
-                        // Reset shadow untuk keamanan
                         ctx.shadowBlur = 0;
                         ctx.shadowOffsetX = 0;
                         ctx.shadowOffsetY = 0;
@@ -877,12 +874,13 @@
                     };
                     
                     imgFrame.onerror = () => {
-                        Swal.fire({ icon: 'error', title: 'Gagal Memuat Frame', text: 'Tidak dapat memuat desain Twibbon dari server.', confirmButtonColor: '#ED4956' });
                         reject(new Error('Twibbon frame failed to load.'));
                     };
                     
-                    // URL Frame Desain Twibbon yang diminta
-                    imgFrame.src = "https://i.imghippo.com/files/tWv8725z.png";
+                    // MENGATASI ERROR CORS: Gunakan layanan proxy WSVR agar Canvas tidak 'tainted' oleh server Imghippo
+                    // Penambahan &output=png wajib agar background twibbon tetap transparan
+                    const frameUrl = "https://i.imghippo.com/files/tWv8725z.png";
+                    imgFrame.src = "https://wsrv.nl/?url=" + encodeURIComponent(frameUrl) + "&output=png";
                 };
                 imgSelfie.onerror = reject;
                 imgSelfie.src = photoDataUrl;
