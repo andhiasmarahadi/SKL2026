@@ -16,8 +16,6 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <!-- SheetJS for Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- jsPDF for PDF Generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -257,9 +255,9 @@
                     
                     <p id="res-pesan" class="text-[13px] text-gray-600 text-center font-medium px-4 mb-6 leading-relaxed">-</p>
 
-                    <!-- Tombol Download SKL (Memicu Kamera) -->
-                    <button id="btn-download-skl" onclick="openCameraModal()" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg flex justify-center items-center gap-2 animate-fade-in hidden">
-                        <i class="fas fa-camera-retro"></i> Selfie & Download SKL (PDF)
+                    <!-- Tombol Download Twibbon (Memicu Kamera) -->
+                    <button id="btn-download-twibbon" onclick="openCameraModal()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg flex justify-center items-center gap-2 animate-fade-in hidden">
+                        <i class="fas fa-camera-retro text-lg"></i> Selfie & Buat Twibbon Lulus
                     </button>
 
                     <!-- Watermark -->
@@ -286,154 +284,13 @@
                     <!-- Frame Overlay -->
                     <div class="absolute inset-0 pointer-events-none border-[12px] border-white/20"></div>
                     <div class="absolute bottom-4 left-0 w-full text-center text-white text-xs text-shadow-md">Pastikan wajah terlihat jelas</div>
-                </div>
-                <div class="p-6 bg-white flex justify-center items-center">
-                    <button id="btn-capture" onclick="captureAndGeneratePDF()" class="w-16 h-16 rounded-full bg-ig-blue border-4 border-blue-200 hover:scale-95 transition-transform shadow-lg flex items-center justify-center text-white text-2xl">
-                        <i class="fas fa-camera"></i>
-                    </button>
-                    <button id="btn-processing" class="hidden w-full bg-gray-200 text-gray-600 font-bold py-3 rounded-xl flex justify-center items-center gap-2" disabled>
-                        <i class="fas fa-spinner fa-spin"></i> Memproses PDF...
-                    </button>
-                </div>
             </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- VIEW 4: LOGIN ADMIN                        -->
-        <!-- ========================================== -->
-        <div id="view-login-admin" class="view-section flex-col w-full min-h-screen bg-ig-bg items-center px-4 py-8 relative justify-center">
-            <button onclick="switchView('view-home')" class="absolute top-6 left-6 text-ig-text p-2 bg-white rounded-full shadow-sm w-10 h-10 flex items-center justify-center hover:bg-gray-50"><i class="fas fa-arrow-left"></i></button>
-            
-            <div class="bg-white border border-ig-border rounded-xl w-full max-w-[360px] p-8 flex flex-col items-center shadow-md animate-fade-in">
-                <div class="w-16 h-16 bg-gray-900 rounded-2xl flex items-center justify-center mb-4 shadow-lg text-white transform rotate-3">
-                    <i class="fas fa-user-shield text-3xl"></i>
-                </div>
-                <h1 class="font-bold text-2xl mb-8 text-gray-800">Admin Portal</h1>
-                
-                <form id="form-login-admin" onsubmit="handleLoginAdmin(event)" class="w-full flex flex-col gap-3">
-                    <div class="relative">
-                        <input type="password" id="admin-pass" required class="ig-input w-full pl-10 tracking-[0.2em]" placeholder="Password Admin">
-                        <i class="fas fa-key absolute left-3 top-[15px] text-gray-400"></i>
-                    </div>
-                    <button type="submit" id="btn-submit-admin" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3 rounded-lg text-[14px] mt-4 transition-colors shadow-sm disabled:opacity-70">Otentikasi</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- VIEW 5: ADMIN DASHBOARD                    -->
-        <!-- ========================================== -->
-        <div id="view-admin-dashboard" class="view-section flex-col w-full h-full bg-gray-50 relative pb-[60px]">
-            <div class="bg-white border-b border-gray-200 h-14 flex items-center justify-between px-4 sticky top-0 z-30 shadow-sm">
-                <div class="font-bold text-[18px] text-gray-800">Dasbor <span class="text-ig-blue">Admin</span></div>
-                <button onclick="logoutAdmin()" class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded-lg font-semibold text-sm transition-colors"><i class="fas fa-sign-out-alt mr-1"></i> Keluar</button>
-            </div>
-
-            <div class="max-w-3xl mx-auto w-full sm:my-6 sm:bg-white sm:border sm:border-gray-200 sm:rounded-xl min-h-screen sm:min-h-0 sm:shadow-sm overflow-hidden flex flex-col">
-                
-                <!-- Desktop Tabs -->
-                <div class="hidden sm:flex border-b border-gray-200 bg-gray-50/50">
-                    <button onclick="switchAdminTab('tab-data')" class="flex-1 py-4 font-semibold text-ig-blue border-b-2 border-ig-blue transition-colors admin-tab-btn" data-target="tab-data"><i class="fas fa-database mr-2"></i>Data Siswa</button>
-                    <button onclick="switchAdminTab('tab-upload')" class="flex-1 py-4 font-semibold text-gray-500 hover:text-gray-800 border-b-2 border-transparent transition-colors admin-tab-btn" data-target="tab-upload"><i class="fas fa-file-upload mr-2"></i>Upload Massal</button>
-                    <button onclick="switchAdminTab('tab-setting')" class="flex-1 py-4 font-semibold text-gray-500 hover:text-gray-800 border-b-2 border-transparent transition-colors admin-tab-btn" data-target="tab-setting"><i class="fas fa-cog mr-2"></i>Pengaturan</button>
-                </div>
-
-                <!-- TAB: DATA -->
-                <div id="tab-data" class="admin-tab w-full animate-fade-in flex flex-col">
-                    
-                    <!-- Stats Cards -->
-                    <div class="grid grid-cols-3 gap-3 p-4 bg-gray-50 border-b border-gray-200">
-                        <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm flex flex-col items-center">
-                            <span class="text-gray-400 text-[11px] font-bold uppercase mb-1">Total</span>
-                            <span class="text-xl font-black text-gray-800" id="stat-total">0</span>
-                        </div>
-                        <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm flex flex-col items-center">
-                            <span class="text-green-500 text-[11px] font-bold uppercase mb-1">Lulus</span>
-                            <span class="text-xl font-black text-green-600" id="stat-lulus">0</span>
-                        </div>
-                        <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm flex flex-col items-center">
-                            <span class="text-red-400 text-[11px] font-bold uppercase mb-1">Tdk Lulus</span>
-                            <span class="text-xl font-black text-red-500" id="stat-gagal">0</span>
-                        </div>
-                    </div>
-
-                    <div class="p-4 border-b border-gray-200 flex flex-col gap-3 bg-white">
-                        <div class="relative w-full">
-                            <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
-                            <input type="text" id="search-siswa" onkeyup="filterTable()" placeholder="Cari nama atau NISN..." class="w-full bg-gray-100 rounded-lg pl-10 pr-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-ig-blue/20 transition-all border border-transparent focus:border-ig-blue/30">
-                        </div>
-                        <div class="flex justify-between items-center mt-1">
-                            <button onclick="openModalSiswa()" class="bg-ig-blue text-white font-semibold text-[13px] px-4 py-2 rounded-lg hover:bg-ig-blue-hover shadow-sm"><i class="fas fa-plus mr-1"></i> Tambah Data</button>
-                            <button onclick="deleteAllData()" class="text-red-500 font-semibold text-[13px] hover:bg-red-50 px-3 py-2 rounded-lg transition-colors"><i class="fas fa-trash-alt mr-1"></i> Kosongkan</button>
-                        </div>
-                    </div>
-                    
-                    <div id="tabel-siswa-body" class="flex flex-col bg-white min-h-[300px]">
-                        <!-- Skeletons -->
-                        <div class="p-4 border-b border-gray-100 flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full skeleton"></div>
-                            <div class="flex-1 space-y-2"><div class="h-3 w-1/2 skeleton"></div><div class="h-2 w-1/3 skeleton"></div></div>
-                        </div>
-                        <div class="p-4 border-b border-gray-100 flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full skeleton"></div>
-                            <div class="flex-1 space-y-2"><div class="h-3 w-1/2 skeleton"></div><div class="h-2 w-1/3 skeleton"></div></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB: UPLOAD -->
-                <div id="tab-upload" class="admin-tab hidden flex-col p-6 animate-fade-in bg-white">
-                    <div class="text-center mb-8">
-                        <div class="w-16 h-16 bg-blue-50 text-ig-blue rounded-full flex items-center justify-center text-2xl mx-auto mb-3"><i class="fas fa-cloud-upload-alt"></i></div>
-                        <h2 class="font-bold text-lg text-gray-800">Upload Data Massal</h2>
-                        <p class="text-xs text-gray-500 mt-1">Gunakan template Excel yang disediakan.</p>
-                    </div>
-                    
-                    <button onclick="downloadTemplate()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-bold text-[13px] border border-gray-200 transition-colors mb-6 shadow-sm">
-                        <i class="fas fa-download mr-2 text-ig-blue"></i> Download Template .xlsx
-                    </button>
-
-                    <div class="border-2 border-dashed border-gray-300 bg-gray-50 rounded-xl aspect-[2/1] flex flex-col items-center justify-center relative cursor-pointer hover:border-ig-blue hover:bg-blue-50 transition-colors">
-                        <input type="file" id="file-excel" accept=".xlsx, .xls" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="handleFileSelect(event)">
-                        <i class="far fa-file-excel text-4xl text-gray-400 mb-2"></i>
-                        <p class="font-bold text-[14px] text-gray-600" id="file-name-display">Pilih File Excel</p>
-                    </div>
-
-                    <button onclick="processUploadExcel()" id="btn-process-excel" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-xl text-[14px] mt-6 hidden shadow-lg animate-slide-up"><i class="fas fa-upload mr-2"></i> Proses Data</button>
-                </div>
-
-                <!-- TAB: PENGATURAN -->
-                <div id="tab-setting" class="admin-tab hidden flex-col animate-fade-in bg-white">
-                    <div class="p-5 border-b border-gray-100">
-                        <h2 class="font-bold text-[15px] text-gray-800 mb-4"><i class="far fa-clock text-ig-blue mr-2"></i>Jadwal Pengumuman</h2>
-                        <form onsubmit="saveSettingDate(event)" class="flex flex-col gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                            <label class="text-xs font-bold text-gray-500 uppercase">Waktu Rilis (WITA)</label>
-                            <input type="datetime-local" id="set-datetime" required class="ig-input w-full font-mono text-sm">
-                            <button type="submit" class="bg-ig-blue hover:bg-ig-blue-hover text-white font-bold rounded-lg py-2.5 text-[13px] transition-colors mt-1 shadow-sm">Simpan Jadwal</button>
-                        </form>
-                    </div>
-
-                    <div class="p-5">
-                        <h2 class="font-bold text-[15px] text-gray-800 mb-4"><i class="fas fa-key text-red-500 mr-2"></i>Keamanan</h2>
-                        <form onsubmit="saveNewPassword(event)" class="flex flex-col gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                            <input type="password" id="set-new-pass" placeholder="Sandi Admin Baru" required minlength="6" class="ig-input w-full">
-                            <input type="password" id="set-conf-pass" placeholder="Konfirmasi Sandi Baru" required class="ig-input w-full">
-                            <button type="submit" class="bg-gray-900 hover:bg-black text-white font-bold rounded-lg py-2.5 text-[13px] transition-colors mt-1 shadow-sm">Perbarui Sandi</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mobile Bottom Nav -->
-            <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 flex justify-around items-center h-[60px] z-50 sm:hidden pb-safe shadow-[0_-4px_15px_rgba(0,0,0,0.03)]">
-                <button onclick="switchAdminTab('tab-data')" class="admin-nav-btn text-ig-blue w-full h-full flex flex-col items-center justify-center gap-1 transition-colors" data-target="tab-data">
-                    <i class="fas fa-database text-xl"></i><span class="text-[9px] font-bold">Data</span>
+            <div class="p-6 bg-white flex justify-center items-center">
+                <button id="btn-capture" onclick="captureAndGenerateTwibbon()" class="w-16 h-16 rounded-full bg-ig-blue border-4 border-blue-200 hover:scale-95 transition-transform shadow-lg flex items-center justify-center text-white text-2xl">
+                    <i class="fas fa-camera"></i>
                 </button>
-                <button onclick="switchAdminTab('tab-upload')" class="admin-nav-btn text-gray-400 w-full h-full flex flex-col items-center justify-center gap-1 transition-colors" data-target="tab-upload">
-                    <i class="fas fa-file-upload text-xl"></i><span class="text-[9px] font-bold">Upload</span>
-                </button>
-                <button onclick="switchAdminTab('tab-setting')" class="admin-nav-btn text-gray-400 w-full h-full flex flex-col items-center justify-center gap-1 transition-colors" data-target="tab-setting">
-                    <i class="fas fa-cog text-xl"></i><span class="text-[9px] font-bold">Setelan</span>
+                <button id="btn-processing" class="hidden w-full bg-gray-200 text-gray-600 font-bold py-3 rounded-xl flex justify-center items-center gap-2" disabled>
+                    <i class="fas fa-spinner fa-spin"></i> Membuat Twibbon...
                 </button>
             </div>
         </div>
@@ -686,7 +543,7 @@
             const statusBox = document.getElementById('res-status-box');
             const bgElement = document.getElementById('result-bg');
             const fxContainer = document.getElementById('fx-container');
-            const btnDownload = document.getElementById('btn-download-skl');
+            const btnDownload = document.getElementById('btn-download-twibbon');
             
             const statusText = (data.Status_Kelulusan || "").toUpperCase();
             statusBox.innerText = statusText;
@@ -763,7 +620,7 @@
             document.getElementById('camera-modal').style.display = 'none';
         }
 
-        async function captureAndGeneratePDF() {
+        async function captureAndGenerateTwibbon() {
             const video = document.getElementById('camera-feed');
             const canvas = document.getElementById('camera-canvas');
             const btnCap = document.getElementById('btn-capture');
@@ -779,19 +636,19 @@
             ctx.scale(-1, 1);
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
-            // Konversi ke base64 (JPEG untuk ukuran kecil)
-            const photoDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            // Konversi ke base64 (JPEG)
+            const photoDataUrl = canvas.toDataURL('image/jpeg', 0.9);
             
             // UI Switch
             btnCap.classList.add('hidden');
             btnProc.classList.remove('hidden');
 
             try {
-                await createPDF(photoDataUrl);
-                Swal.fire({ icon: 'success', title: 'Berhasil Diunduh!', text: 'Surat Keterangan Kelulusan telah disimpan ke perangkat Anda.', confirmButtonColor: '#10B981' });
+                await createTwibbon(photoDataUrl);
+                Swal.fire({ icon: 'success', title: 'Berhasil Diunduh!', text: 'Twibbon Kelulusan berhasil disimpan. Siap diposting ke Sosmed!', confirmButtonColor: '#10B981' });
             } catch (e) {
                 console.error(e);
-                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat membuat PDF.', confirmButtonColor: '#ED4956' });
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat membuat Twibbon.', confirmButtonColor: '#ED4956' });
             } finally {
                 closeCameraModal();
                 btnCap.classList.remove('hidden');
@@ -799,107 +656,75 @@
             }
         }
 
-        async function createPDF(photoDataUrl) {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    // Gunakan jsPDF
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF('p', 'mm', 'a4');
+        async function createTwibbon(photoDataUrl) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Setup ukuran Twibbon (Standard Feed Instagram: 1080x1080)
+                    const cvs = document.createElement('canvas');
+                    cvs.width = 1080;
+                    cvs.height = 1080;
+                    const ctx = cvs.getContext('2d');
                     const d = currentUserData;
-                    const pageWidth = doc.internal.pageSize.getWidth();
 
-                    // Font & Colors
-                    doc.setFont("helvetica");
+                    // 1. Gambar Foto Selfie (Crop agar menjadi Square/Persegi)
+                    const size = Math.min(img.width, img.height);
+                    const x = (img.width - size) / 2;
+                    const y = (img.height - size) / 2;
+                    ctx.drawImage(img, x, y, size, size, 0, 0, 1080, 1080);
 
-                    // --- KOP SURAT ---
-                    doc.setFontSize(16);
-                    doc.setFont("helvetica", "bold");
-                    doc.text("PEMERINTAH KABUPATEN DAWAN", pageWidth/2, 20, {align: 'center'});
-                    doc.setFontSize(14);
-                    doc.text("DINAS PENDIDIKAN, KEPEMUDAAN DAN OLAHRAGA", pageWidth/2, 27, {align: 'center'});
-                    doc.setFontSize(18);
-                    doc.text("SMP NEGERI 1 DAWAN", pageWidth/2, 35, {align: 'center'});
-                    
-                    doc.setLineWidth(1);
-                    doc.line(20, 42, pageWidth-20, 42);
-                    doc.setLineWidth(0.3);
-                    doc.line(20, 43.5, pageWidth-20, 43.5);
+                    // 2. Tambahkan Overlay Gradasi Gelap di bagian bawah agar teks putih bisa terbaca
+                    const grad = ctx.createLinearGradient(0, 400, 0, 1080);
+                    grad.addColorStop(0, 'rgba(0,0,0,0)');
+                    grad.addColorStop(0.8, 'rgba(0,0,0,0.85)');
+                    grad.addColorStop(1, 'rgba(0,0,0,0.95)');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(0, 0, 1080, 1080);
 
-                    // --- JUDUL SURAT ---
-                    doc.setFontSize(14);
-                    doc.setFont("helvetica", "bold");
-                    doc.text("SURAT KETERANGAN KELULUSAN", pageWidth/2, 55, {align: 'center'});
-                    doc.setLineWidth(0.3);
-                    doc.line(pageWidth/2 - 38, 56, pageWidth/2 + 38, 56);
-                    
-                    doc.setFontSize(11);
-                    doc.setFont("helvetica", "normal");
-                    doc.text("Nomor: 421.3 / 001 / SMPN1 / 2026", pageWidth/2, 62, {align: 'center'});
+                    // 3. Tambahkan Bingkai/Frame Khas Gradasi Instagram
+                    ctx.lineWidth = 40;
+                    const frameGrad = ctx.createLinearGradient(0, 0, 1080, 1080);
+                    frameGrad.addColorStop(0, '#f09433');
+                    frameGrad.addColorStop(0.25, '#e6683c');
+                    frameGrad.addColorStop(0.5, '#dc2743');
+                    frameGrad.addColorStop(0.75, '#cc2366');
+                    frameGrad.addColorStop(1, '#bc1888');
+                    ctx.strokeStyle = frameGrad;
+                    ctx.strokeRect(20, 20, 1040, 1040); // Sisakan margin 20px
 
-                    // --- ISI SURAT ---
-                    doc.text("Yang bertanda tangan di bawah ini Kepala SMP Negeri 1 Dawan, menerangkan bahwa:", 25, 75);
-                    
-                    let startY = 85;
-                    const col1 = 35; const col2 = 70;
-                    
-                    doc.text("Nama Lengkap", col1, startY); doc.text(":", col2-3, startY); 
-                    doc.setFont("helvetica", "bold"); doc.text(d.Nama_Siswa.toUpperCase(), col2, startY); doc.setFont("helvetica", "normal");
-                    
-                    startY += 8;
-                    doc.text("Tempat, Tgl Lahir", col1, startY); doc.text(":", col2-3, startY); 
-                    doc.text(`${d.Tempat_Lahir}, ${d.Tanggal_Lahir}`, col2, startY);
-                    
-                    startY += 8;
-                    doc.text("NISN", col1, startY); doc.text(":", col2-3, startY); 
-                    doc.text(d.NISN, col2, startY);
-                    
-                    startY += 8;
-                    doc.text("Kelas", col1, startY); doc.text(":", col2-3, startY); 
-                    doc.text(d.Kelas, col2, startY);
+                    // 4. Tambahkan Teks Utama "SAYA LULUS!"
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = 'bold 90px "Inter", sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.fillText('SAYA LULUS! 🎉', 70, 850);
 
-                    // --- STATUS KELULUSAN ---
-                    startY += 15;
-                    doc.text("Berdasarkan hasil rapat pleno Dewan Guru, siswa tersebut dinyatakan:", 25, startY);
-                    
-                    startY += 12;
-                    doc.setFontSize(18);
-                    doc.setFont("helvetica", "bold");
-                    doc.setTextColor(0, 128, 0); // Green
-                    doc.text("L U L U S", pageWidth/2, startY, {align: 'center'});
-                    doc.setTextColor(0, 0, 0); // Reset Black
-                    
-                    doc.setFontSize(11);
-                    doc.setFont("helvetica", "normal");
-                    startY += 12;
-                    doc.text("dari satuan pendidikan SMP Negeri 1 Dawan Tahun Ajaran 2025/2026.", 25, startY);
+                    // 5. Tambahkan Teks Nama Siswa
+                    ctx.font = 'bold 50px "Inter", sans-serif';
+                    ctx.fillStyle = '#FACC15'; // Warna Kuning
+                    let namaSiswa = d.Nama_Siswa.length > 25 ? d.Nama_Siswa.substring(0, 25) + '...' : d.Nama_Siswa;
+                    ctx.fillText(namaSiswa, 75, 930);
 
-                    // --- FOTO SELFIE (BUKTI OTENTIKASI) ---
-                    startY += 20;
-                    // Draw Box for Photo
-                    doc.rect(25, startY, 40, 50); // x, y, w, h
-                    doc.setFontSize(8);
-                    doc.setTextColor(150);
-                    doc.text("Dokumentasi Siswa", 45, startY-2, {align: 'center'});
-                    // Insert Base64 Image
-                    // Karena ukuran canvas mungkin beda rasio, kita fit ke box
-                    doc.addImage(photoDataUrl, 'JPEG', 25.5, startY+0.5, 39, 49);
+                    // 6. Tambahkan Detail Sekolah & Angkatan
+                    ctx.font = '35px "Inter", sans-serif';
+                    ctx.fillStyle = '#E5E7EB'; // Warna Abu-abu terang
+                    ctx.fillText(`SMPN 1 DAWAN • Angkatan 2026`, 75, 990);
 
-                    // --- TTD ---
-                    doc.setTextColor(0);
-                    doc.setFontSize(11);
-                    const today = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-                    doc.text(`Dawan, ${today}`, pageWidth - 30, startY + 5, {align: 'right'});
-                    doc.text("Kepala Sekolah", pageWidth - 30, startY + 12, {align: 'right'});
+                    // 7. Tambahkan Watermark Sistem di pojok Kanan Atas
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.font = 'italic 25px "Inter", sans-serif';
+                    ctx.textAlign = 'right';
+                    ctx.fillText('Verified by System ✅', 1010, 80);
+
+                    // Trigger Download sebagai File JPG ke perangkat siswa
+                    const link = document.createElement('a');
+                    link.download = `Twibbon_Lulus_${d.NISN}.jpg`;
+                    link.href = cvs.toDataURL('image/jpeg', 0.9);
+                    link.click();
                     
-                    doc.setFont("helvetica", "bold");
-                    doc.text("I Wayan Pendidik, M.Pd", pageWidth - 30, startY + 40, {align: 'right'});
-                    doc.setFont("helvetica", "normal");
-                    doc.text("NIP. 19800101 200501 1 001", pageWidth - 30, startY + 45, {align: 'right'});
-
-                    // Save PDF
-                    doc.save(`SKL_${d.NISN}_${d.Nama_Siswa.replace(/\s+/g, '_')}.pdf`);
                     resolve();
-                }, 1000); // Simulasi waktu proses
+                };
+                img.onerror = reject;
+                img.src = photoDataUrl;
             });
         }
 
