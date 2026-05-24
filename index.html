@@ -35,6 +35,7 @@
                         'fade-in': 'fadeIn 0.4s ease-out forwards',
                         'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'pulse-glow': 'pulseGlow 2s infinite',
+                        'bounce-slight': 'bounceSlight 2s infinite ease-in-out',
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
@@ -42,6 +43,10 @@
                         pulseGlow: { 
                             '0%, 100%': { boxShadow: '0 0 15px rgba(0, 149, 246, 0.5)' }, 
                             '50%': { boxShadow: '0 0 30px rgba(0, 149, 246, 0.9)' } 
+                        },
+                        bounceSlight: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-8px)' }
                         }
                     }
                 }
@@ -69,11 +74,11 @@
         
         /* Glassmorphism */
         .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
         }
 
         .ig-input {
@@ -92,6 +97,11 @@
     </style>
 </head>
 <body>
+
+    <!-- Sound Effects -->
+    <audio id="sfx-pop" src="https://assets.mixkit.co/active_storage/sfx/3165/3165-preview.mp3" preload="auto"></audio>
+    <audio id="sfx-success" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
+    <audio id="sfx-fail" src="https://assets.mixkit.co/active_storage/sfx/2997/2997-preview.mp3" preload="auto"></audio>
 
     <!-- Thumbnail untuk Postingan Blogger (Tersembunyi) -->
     <img src="https://i.ibb.co.com/BVGjXVL7/logo-baru.png" alt="Thumbnail" class="blogger-thumbnail">
@@ -128,7 +138,7 @@
                 </div>
 
                 <div class="w-full aspect-square bg-gradient-to-br from-blue-50 via-white to-gray-50 flex flex-col justify-center items-center relative px-4 text-center">
-                    <div class="w-20 h-20 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center text-4xl mb-6 shadow-inner">
+                    <div class="w-20 h-20 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center text-4xl mb-6 shadow-inner animate-bounce-slight">
                         <i class="fas fa-graduation-cap"></i>
                     </div>
                     <h2 class="text-2xl font-extrabold text-gray-800 mb-1 tracking-tight">KELULUSAN KELAS 9</h2>
@@ -217,7 +227,7 @@
                 <div class="p-6 flex flex-col items-center relative bg-white/60">
                     <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4 shadow-lg border-4 border-white relative z-10">
                         <i class="fas fa-user-graduate text-4xl text-gray-400"></i>
-                        <div class="absolute -bottom-2 -right-2 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md text-xl" id="res-emoji-status">🎓</div>
+                        <div class="absolute -bottom-2 -right-2 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md text-xl animate-bounce-slight" id="res-emoji-status">🎓</div>
                     </div>
                     
                     <h3 class="text-2xl font-extrabold text-gray-800 text-center mb-1" id="res-nama">-</h3>
@@ -225,14 +235,16 @@
                         <span class="text-[12px] font-bold text-gray-600 tracking-wider" id="res-nisn">-</span>
                     </div>
                     
+                    <!-- REVISI: Perbaikan Layout Informasi Siswa agar tidak terpotong (truncate dihilangkan) -->
                     <div class="w-full bg-white/50 p-4 rounded-2xl border border-white/50 mb-6 flex justify-between shadow-inner">
-                        <div class="text-center w-1/2 border-r border-gray-200/50">
+                        <div class="text-center w-1/3 border-r border-gray-200/50 flex flex-col justify-center">
                             <p class="text-[10px] font-bold text-gray-400 uppercase">Kelas</p>
-                            <p class="text-[14px] font-bold text-gray-700 mt-1" id="res-kelas">-</p>
+                            <p class="text-[14px] font-bold text-gray-700 mt-1 break-words px-1" id="res-kelas">-</p>
                         </div>
-                        <div class="text-center w-1/2">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Tgl Lahir</p>
-                            <p class="text-[14px] font-bold text-gray-700 mt-1 truncate px-2" id="res-ttl">-</p>
+                        <div class="text-center w-2/3 flex flex-col justify-center">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Tempat, Tgl Lahir</p>
+                            <!-- Hapus truncate, ganti dengan break-words dan leading-tight -->
+                            <p class="text-[13px] font-bold text-gray-700 mt-1 px-2 leading-tight break-words" id="res-ttl">-</p>
                         </div>
                     </div>
 
@@ -245,7 +257,7 @@
 
                     <!-- Tombol Download Twibbon -->
                     <button id="btn-download-twibbon" onclick="openCameraModal()" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg flex justify-center items-center gap-2 animate-fade-in hidden">
-                        <i class="fas fa-camera-retro text-lg"></i> Buat Twibbon Lulus 📸
+                        <i class="fas fa-camera-retro text-lg"></i> Buat Twibbon Premium 📸
                     </button>
 
                     <!-- Watermark -->
@@ -263,7 +275,7 @@
             <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden flex flex-col shadow-2xl animate-slide-up">
                 
                 <div class="p-4 bg-gray-900 text-white flex justify-between items-center z-10 relative">
-                    <h3 class="font-bold text-sm"><i class="fas fa-magic mr-2 text-yellow-300"></i>Twibbon Generator</h3>
+                    <h3 class="font-bold text-sm"><i class="fas fa-magic mr-2 text-yellow-300"></i>Premium Twibbon</h3>
                     <button onclick="closeCameraModal()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
                 </div>
                 
@@ -274,10 +286,11 @@
                         <canvas id="camera-canvas" class="hidden"></canvas>
                         
                         <!-- Frame Overlay Bantuan -->
-                        <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
-                            <div class="w-[70%] aspect-square rounded-full border-4 border-dashed border-white/50 shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]"></div>
+                        <div class="absolute inset-0 pointer-events-none flex items-center justify-center p-8">
+                            <!-- Bingkai bantuan kotak memanjang mengikuti bentuk polaroid -->
+                            <div class="w-full h-[80%] rounded-2xl border-4 border-dashed border-white/50 shadow-[0_0_0_9999px_rgba(0,0,0,0.6)]"></div>
                         </div>
-                        <div class="absolute bottom-4 left-0 w-full text-center text-white text-xs drop-shadow-md font-medium">Posisikan wajah di dalam lingkaran</div>
+                        <div class="absolute bottom-6 left-0 w-full text-center text-white text-xs drop-shadow-md font-medium px-4">Posisikan diri Anda di dalam bingkai</div>
                     </div>
                     
                     <div class="p-6 bg-white flex justify-center items-center">
@@ -285,7 +298,7 @@
                             <i class="fas fa-camera"></i>
                         </button>
                         <button id="btn-processing" class="hidden w-full bg-gray-200 text-gray-600 font-bold py-3 rounded-xl flex justify-center items-center gap-2" disabled>
-                            <i class="fas fa-spinner fa-spin"></i> Meracik Desain...
+                            <i class="fas fa-spinner fa-spin"></i> Meracik Mahakarya...
                         </button>
                     </div>
                 </div>
@@ -294,7 +307,7 @@
                 <div id="step-hasil" class="hidden flex-col w-full p-5 bg-gray-50">
                     <img id="twibbon-preview" class="w-full aspect-square object-contain rounded-xl shadow-md border border-gray-200 mb-3" src="" alt="Twibbon Anda">
                     <p class="text-[11px] text-gray-500 text-center mb-4 leading-tight font-medium bg-blue-50 text-blue-600 p-2 rounded-lg">
-                        <i class="fas fa-info-circle mr-1"></i> Jika tombol gagal, tekan & tahan gambar di atas, lalu pilih "Simpan Gambar" atau "Download Image".
+                        <i class="fas fa-info-circle mr-1"></i> Tekan & tahan gambar di atas, lalu pilih "Simpan Gambar" / "Download Image".
                     </p>
                     
                     <button onclick="downloadTwibbonAction()" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 rounded-xl shadow-md mb-2 hover:opacity-90 flex items-center justify-center gap-2">
@@ -330,7 +343,7 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- VIEW 5: ADMIN DASHBOARD                    -->
+        <!-- VIEW 5: ADMIN DASHBOARD (Tidak ada perubahan) -->
         <!-- ========================================== -->
         <div id="view-admin-dashboard" class="view-section flex-col w-full h-full bg-gray-50 relative pb-[60px]">
             <div class="bg-white border-b border-gray-200 h-14 flex items-center justify-between px-4 sticky top-0 z-30 shadow-sm shrink-0">
@@ -377,7 +390,6 @@
                         </div>
                     </div>
                     
-                    <!-- BUG FIX: Menambahkan overflow-y-auto agar bisa di scroll -->
                     <div id="tabel-siswa-body" class="flex-1 overflow-y-auto max-h-[calc(100vh-280px)] flex flex-col bg-white">
                         <!-- Loading State -->
                     </div>
@@ -404,7 +416,7 @@
                     <button onclick="processUploadExcel()" id="btn-process-excel" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-xl text-[14px] mt-6 hidden shadow-lg animate-slide-up"><i class="fas fa-upload mr-2"></i> Proses Data</button>
                 </div>
 
-                <!-- TAB: LOG AKSES (BARU) -->
+                <!-- TAB: LOG AKSES -->
                 <div id="tab-log" class="admin-tab hidden flex-col w-full h-full animate-fade-in bg-white overflow-hidden">
                     <div class="p-4 bg-indigo-50 border-b border-indigo-100 flex justify-between items-center shrink-0">
                         <div>
@@ -521,25 +533,23 @@
         // 1. Ubah IS_PREVIEW = false jika sudah dimasukkan ke Blogger
         // 2. Wajib masukkan link URL Deploy GAS agar data asli berjalan
         // ==========================================
-        const IS_PREVIEW = false; // SAYA SET TRUE AGAR BISA DITEST LANGSUNG DI CANVAS
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxkZDGG31MzMc9LUo52HKtoETRsgLDd-jrJKqW0VavXQx61-x8Szbt4vViqIxqbcjNi/exec";
+        const IS_PREVIEW = true; // SAYA SET TRUE AGAR BISA DITEST LANGSUNG DI CANVAS
+        const GAS_URL = "URL_WEB_APP_ANDA_YANG_BARU_DISALIN_TADI";
 
         let targetDate = new Date().getTime() + (1000 * 5); // Dummy 5 detik untuk preview
         let countdownInterval;
         let adminToken = ""; 
         let cacheDataSiswa = [];
         let selectedExcelData = [];
-        let currentUserData = null; // Menyimpan data siswa yang login
-        let generatedTwibbonURL = null; // Menyimpan Base64 Twibbon
+        let currentUserData = null; 
+        let generatedTwibbonURL = null; 
         
-        // Mode Canvas - Kredensial Dummy
         let mockAdminPass = "edudigital"; 
 
-        // Data Base Dummy untuk Canvas (Jika IS_PREVIEW = true)
         const DUMMY_DB = {
             settings: { TANGGAL_PENGUMUMAN: new Date(new Date().getTime() + 5000).toISOString() }, 
             students: [
-                { NISN: "peserta", Nama_Siswa: "Ahmad Budi Santoso Wiryawan Saputra", Tempat_Lahir: "Dawan", Tanggal_Lahir: "2010-05-12", Kelas: "9A", Status_Kelulusan: "LULUS" },
+                { NISN: "peserta", Nama_Siswa: "Ahmad Budi Santoso Wiryawan Saputra", Tempat_Lahir: "Kabupaten Klungkung", Tanggal_Lahir: "2010-05-12", Kelas: "9A - Sains & Teknologi", Status_Kelulusan: "LULUS" },
                 { NISN: "gagal", Nama_Siswa: "Citra Dewi", Tempat_Lahir: "Denpasar", Tanggal_Lahir: "2010-08-20", Kelas: "9B", Status_Kelulusan: "TIDAK LULUS" }
             ],
             logs: [
@@ -559,7 +569,7 @@
             });
             const target = document.getElementById(viewId);
             target.style.display = 'flex';
-            void target.offsetWidth; // Force reflow
+            void target.offsetWidth; 
             target.classList.add('active');
             window.scrollTo(0,0);
         }
@@ -591,7 +601,6 @@
                     else if (action === 'loginSiswa') {
                         const s = DUMMY_DB.students.find(x => x.NISN === payload.nisn);
                         if (s && payload.nisn === payload.pass) {
-                            // Catat log di dummy
                             DUMMY_DB.logs.unshift({
                                 Waktu: new Date().toLocaleString('id-ID'),
                                 NISN: s.NISN, Nama_Siswa: s.Nama_Siswa, Kelas: s.Kelas
@@ -680,10 +689,16 @@
         }
 
         // ------------------------------------------
-        // LOGIN SISWA & RESULT (GLASSMORPHISM)
+        // LOGIN SISWA & RESULT (REVISI CELEBRATION & SFX)
         // ------------------------------------------
         async function handleLoginSiswa(e) {
             e.preventDefault();
+            
+            // Pancing audio agar tidak diblock browser saat dipanggil via async
+            document.getElementById('sfx-success').load();
+            document.getElementById('sfx-pop').load();
+            document.getElementById('sfx-fail').load();
+
             const btn = document.getElementById('btn-submit-siswa');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memeriksa...'; btn.disabled = true;
 
@@ -708,8 +723,9 @@
             let tglFormat = data.Tanggal_Lahir;
             if(tglFormat) {
                 const d = new Date(tglFormat);
-                if(!isNaN(d)) tglFormat = d.toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
+                if(!isNaN(d)) tglFormat = d.toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'});
             }
+            
             document.getElementById('res-ttl').innerText = `${data.Tempat_Lahir || '-'}, ${tglFormat || '-'}`;
             document.getElementById('res-kelas').innerText = data.Kelas || '-';
             
@@ -726,44 +742,76 @@
             document.getElementById('res-watermark').innerText = `Diakses pada: ${now.toLocaleDateString('id-ID')} ${now.toLocaleTimeString('id-ID')} | Validated by System`;
 
             if (statusText === 'LULUS') {
-                document.getElementById('res-emoji-status').innerText = '🎉';
-                document.getElementById('res-emoji-status').className = "absolute -bottom-2 -right-2 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md text-xl text-green-500";
-                statusBox.className = "w-full py-4 text-center rounded-2xl text-3xl font-black tracking-widest text-white shadow-xl mb-4 bg-gradient-to-r from-green-500 to-emerald-600 border border-green-400";
-                document.getElementById('res-pesan').innerText = "Selamat! Anda dinyatakan LULUS. Terus ukir prestasi di masa depan dan jadilah kebanggaan sekolah.";
-                bgElement.className = "absolute inset-0 bg-gradient-to-br from-green-100 via-teal-50 to-blue-50 opacity-80 transition-all duration-1000";
+                document.getElementById('res-emoji-status').innerText = '🥳';
+                document.getElementById('res-emoji-status').className = "absolute -bottom-2 -right-2 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md text-xl text-green-500 animate-bounce";
+                statusBox.className = "w-full py-4 text-center rounded-2xl text-3xl font-black tracking-widest text-white shadow-2xl mb-4 bg-gradient-to-r from-emerald-400 to-green-600 border-2 border-white";
+                document.getElementById('res-pesan').innerText = "Luar Biasa! Anda dinyatakan LULUS. Terbanglah tinggi dan raih cita-citamu untuk membanggakan sekolah tercinta.";
+                bgElement.className = "absolute inset-0 bg-gradient-to-br from-green-100 via-teal-50 to-blue-50 opacity-90 transition-all duration-1000";
                 
                 btnDownload.classList.remove('hidden');
-                triggerConfetti();
+                
+                // Mainkan SFX Success & Pop
+                setTimeout(() => {
+                    document.getElementById('sfx-pop').play().catch(()=>{});
+                    setTimeout(() => { document.getElementById('sfx-success').play().catch(()=>{}); }, 400);
+                }, 100);
+                
+                // Animasi kembang api konfeti yang meriah
+                triggerMeriahConfetti();
             } else {
-                document.getElementById('res-emoji-status').innerText = '🌧️';
+                document.getElementById('res-emoji-status').innerText = '💪';
                 document.getElementById('res-emoji-status').className = "absolute -bottom-2 -right-2 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md text-xl text-red-500";
-                statusBox.className = "w-full py-4 text-center rounded-2xl text-3xl font-black tracking-widest text-white shadow-xl mb-4 bg-gradient-to-r from-red-500 to-rose-600 border border-red-400";
-                document.getElementById('res-pesan').innerText = "Tetap semangat, jalan masih panjang. Jangan pernah menyerah, jadikan ini sebagai motivasi untuk bangkit.";
-                bgElement.className = "absolute inset-0 bg-gradient-to-br from-gray-200 via-gray-300 to-slate-400 opacity-80 transition-all duration-1000 grayscale-[50%]";
+                statusBox.className = "w-full py-4 text-center rounded-2xl text-3xl font-black tracking-widest text-white shadow-xl mb-4 bg-gradient-to-r from-gray-500 to-red-600 border border-gray-400";
+                document.getElementById('res-pesan').innerText = "Tetap semangat dan pantang menyerah. Ini bukanlah akhir, melainkan awal dari proses belajarmu yang baru.";
+                bgElement.className = "absolute inset-0 bg-gradient-to-br from-gray-200 via-gray-300 to-slate-400 opacity-80 transition-all duration-1000 grayscale-[40%]";
                 
                 btnDownload.classList.add('hidden');
+                
+                // Mainkan SFX Fail
+                setTimeout(() => { document.getElementById('sfx-fail').play().catch(()=>{}); }, 100);
             }
             switchView('view-siswa-result');
+        }
+
+        // FUNGSI ANIMASI CELEBRATION (FIREWORKS)
+        function triggerMeriahConfetti() {
+            var duration = 7 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999999, colors: ['#FFC700', '#FF0000', '#0047FF', '#00FF19'] };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            // Ledakan tengah besar di awal
+            confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 }, zIndex: 9999999, colors: ['#FFC700', '#FF0000', '#0047FF'] });
+
+            // Tembakan terus menerus dari sisi kiri & kanan
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
         }
 
         function logoutSiswa() {
             currentUserData = null; generatedTwibbonURL = null;
             document.getElementById('siswa-nisn').value = ''; document.getElementById('siswa-pass').value = '';
             document.getElementById('fx-container').innerHTML = '';
+            
+            // Hentikan suara jika masih main
+            const audios = ['sfx-pop', 'sfx-success', 'sfx-fail'];
+            audios.forEach(id => {
+                let a = document.getElementById(id);
+                a.pause(); a.currentTime = 0;
+            });
+            
             switchView('view-home');
         }
 
-        function triggerConfetti() {
-            let duration = 4 * 1000; let animationEnd = Date.now() + duration;
-            let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10, colors: ['#0095F6', '#10B981', '#FACC15'] };
-            let interval = setInterval(function() {
-                if (animationEnd - Date.now() <= 0) return clearInterval(interval);
-                confetti(Object.assign({}, defaults, { particleCount: 50, origin: { x: Math.random(), y: Math.random() - 0.2 } }));
-            }, 250);
-        }
-
         // ------------------------------------------
-        // KAMERA & TWIBBON GENERATOR MODERN
+        // KAMERA & TWIBBON GENERATOR MODERN (REVISI PREMIUM)
         // ------------------------------------------
         let videoStream = null;
 
@@ -797,14 +845,28 @@
             generatedTwibbonURL = null;
         }
 
-        // Fungsi Helper untuk memuat gambar agar mendukung crossOrigin
         const loadImageUrl = (src) => new Promise((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = "Anonymous";
             img.onload = () => resolve(img);
-            img.onerror = () => resolve(null); // Return null if fail to not break the whole canvas
+            img.onerror = () => resolve(null); 
             img.src = src;
         });
+
+        // Helper manual untuk RoundRect agar kompatibel di semua browser HP
+        function drawRoundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
 
         async function captureAndGenerateTwibbon() {
             const video = document.getElementById('camera-feed');
@@ -816,7 +878,6 @@
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
             
-            // Mirror Draw
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -828,12 +889,9 @@
 
             try {
                 generatedTwibbonURL = await createTwibbonModern(photoDataUrl);
-                
-                // Tampilkan Hasil
                 document.getElementById('twibbon-preview').src = generatedTwibbonURL;
                 document.getElementById('step-kamera').style.display = 'none';
                 document.getElementById('step-hasil').style.display = 'flex';
-
             } catch (e) {
                 console.error(e);
                 Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat memproses gambar.', confirmButtonColor: '#ED4956' });
@@ -843,112 +901,138 @@
             }
         }
 
+        // TWIBBON GENERATOR DENGAN DESAIN MODERN & ELEGAN (Floating Card Style)
         async function createTwibbonModern(photoDataUrl) {
             const cvs = document.createElement('canvas');
             cvs.width = 1080; cvs.height = 1080;
             const ctx = cvs.getContext('2d');
             const d = currentUserData;
 
-            // Load resources
             const [userPhoto, schoolLogo] = await Promise.all([
                 loadImageUrl(photoDataUrl),
-                loadImageUrl('https://i.ibb.co.com/BVGjXVL7/logo-baru.png') // Logo
+                loadImageUrl('https://i.ibb.co.com/BVGjXVL7/logo-baru.png') 
             ]);
 
-            // 1. BACKGROUND GRADIENT (Pastel Fun)
+            // 1. BACKGROUND GRADIENT (Premium Dark Blue)
             const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1080);
-            bgGrad.addColorStop(0, '#E0C3FC'); // Light Purple
-            bgGrad.addColorStop(1, '#8EC5FC'); // Soft Blue
+            bgGrad.addColorStop(0, '#020617'); // Very Dark Slate
+            bgGrad.addColorStop(0.5, '#1e3a8a'); // Deep Blue
+            bgGrad.addColorStop(1, '#0f172a');
             ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, 1080, 1080);
 
-            // 2. ORNAMEN / POLA LATAR BELAKANG (Bintang/Confetti)
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-            for(let i=0; i<40; i++) {
-                ctx.beginPath();
-                ctx.arc(Math.random()*1080, Math.random()*1080, Math.random()*8 + 3, 0, Math.PI*2);
-                ctx.fill();
-            }
+            // 2. GLOW & ABSTRACT SHAPES (Lighting effects)
+            const glow1 = ctx.createRadialGradient(800, 200, 0, 800, 200, 600);
+            glow1.addColorStop(0, 'rgba(252, 211, 77, 0.25)'); // Gold glow
+            glow1.addColorStop(1, 'rgba(252, 211, 77, 0)');
+            ctx.fillStyle = glow1; ctx.fillRect(0,0,1080,1080);
 
-            // 3. FOTO USER (Lingkaran di tengah atas)
-            const centerX = 540;
-            const centerY = 450;
-            const radius = 320;
+            const glow2 = ctx.createRadialGradient(200, 800, 0, 200, 800, 500);
+            glow2.addColorStop(0, 'rgba(56, 189, 248, 0.3)'); // Cyan glow
+            glow2.addColorStop(1, 'rgba(56, 189, 248, 0)');
+            ctx.fillStyle = glow2; ctx.fillRect(0,0,1080,1080);
 
-            // Stroke Luar Bingkai
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius + 25, 0, Math.PI * 2);
-            const strokeGrad = ctx.createLinearGradient(0, 0, 1080, 1080);
-            strokeGrad.addColorStop(0, '#FFFFFF');
-            strokeGrad.addColorStop(1, '#FFE53B'); // Gold-ish
-            ctx.fillStyle = strokeGrad;
-            ctx.fill();
-            ctx.shadowColor = "rgba(0,0,0,0.15)";
-            ctx.shadowBlur = 30;
-            ctx.fill(); // Fill twice to enforce shadow
-            ctx.shadowBlur = 0; // Reset
-
-            // Clip & Draw Photo
+            // 3. FLOATING POLAROID FRAME (Miring estetik)
             ctx.save();
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            ctx.clip();
-            const size = Math.min(userPhoto.width, userPhoto.height);
-            const sx = (userPhoto.width - size) / 2;
-            const sy = (userPhoto.height - size) / 2;
-            ctx.drawImage(userPhoto, sx, sy, size, size, centerX - radius, centerY - radius, radius*2, radius*2);
-            ctx.restore();
-
-            // 4. EMOJI & ORNAMEN DEKORATIF KELULUSAN
-            ctx.font = '120px sans-serif';
-            ctx.fillText('🎓', 780, 250); // Toga Kanan Atas
-            ctx.fillText('✨', 160, 200); // Bintang Kiri Atas
-            ctx.fillText('🎉', 150, 750); // Terompet Kiri Bawah
-            ctx.fillText('🏅', 820, 720); // Medali Kanan Bawah
-
-            // 5. KOTAK TEKS (Rounded Banner di bawah)
+            ctx.translate(540, 480);
+            ctx.rotate(-4 * Math.PI / 180); // Miring -4 derajat
+            
+            // Bayangan Premium (Soft but deep shadow)
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 50;
+            ctx.shadowOffsetY = 25;
+            
+            // Bingkai putih luar
             ctx.fillStyle = '#FFFFFF';
-            ctx.shadowColor = "rgba(0,0,0,0.1)";
-            ctx.shadowBlur = 20;
-            ctx.beginPath();
-            ctx.roundRect(80, 800, 920, 230, 40);
+            drawRoundRect(ctx, -380, -380, 760, 800, 40);
             ctx.fill();
+            
+            // Matikan bayangan untuk isi
+            ctx.shadowColor = 'transparent';
+            
+            // Area foto (inner mask)
+            drawRoundRect(ctx, -350, -350, 700, 600, 20);
+            ctx.save();
+            ctx.clip();
+            
+            // Draw & Scale Photo
+            if(userPhoto) {
+                const imgRatio = userPhoto.width / userPhoto.height;
+                const areaRatio = 700 / 600;
+                let drawW, drawH, drawX, drawY;
+
+                if (imgRatio > areaRatio) {
+                    drawH = 600; drawW = userPhoto.width * (600 / userPhoto.height);
+                    drawX = -350 - (drawW - 700) / 2; drawY = -350;
+                } else {
+                    drawW = 700; drawH = userPhoto.height * (700 / userPhoto.width);
+                    drawX = -350; drawY = -350 - (drawH - 600) / 2;
+                }
+                ctx.drawImage(userPhoto, drawX, drawY, drawW, drawH);
+            }
+            ctx.restore(); // Lepas clip foto
+
+            // Badge Emas "SAYA LULUS" di dalam polaroid bawah
+            const badgeGrad = ctx.createLinearGradient(-350, 280, 350, 280);
+            badgeGrad.addColorStop(0, '#F59E0B');
+            badgeGrad.addColorStop(0.5, '#FBBF24');
+            badgeGrad.addColorStop(1, '#F59E0B');
+            ctx.fillStyle = badgeGrad;
+            drawRoundRect(ctx, -200, 290, 400, 80, 40);
+            ctx.fill();
+
+            // Teks SAYA LULUS
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '900 45px "Inter", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('SAYA LULUS', 0, 345);
+
+            ctx.restore(); // Kembali ke canvas lurus
+
+            // 4. TEKS INFORMASI DI BAGIAN BAWAH
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 50px "Inter", sans-serif';
+            ctx.textAlign = 'center';
+            
+            let namaSiswa = (d?.Nama_Siswa || 'Siswa Berprestasi');
+            if(namaSiswa.length > 30) namaSiswa = namaSiswa.substring(0, 30) + '...';
+            
+            // Efek shadow teks agar nyala
+            ctx.shadowColor = 'rgba(255,255,255,0.4)';
+            ctx.shadowBlur = 10;
+            ctx.fillText(namaSiswa, 540, 960);
             ctx.shadowBlur = 0;
 
-            // 6. TEKS "LULUS!"
-            ctx.fillStyle = '#10B981'; // Emerald Green
-            ctx.font = '900 75px "Inter", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('SAYA LULUS!', 540, 890);
-
-            // 7. TEKS NAMA SISWA
-            ctx.fillStyle = '#1F2937'; // Dark Gray
-            ctx.font = 'bold 45px "Inter", sans-serif';
-            let namaSiswa = (d?.Nama_Siswa || 'Siswa').length > 30 ? (d?.Nama_Siswa || 'Siswa').substring(0, 30) + '...' : (d?.Nama_Siswa || 'Siswa');
-            ctx.fillText(namaSiswa, 540, 960);
-
-            // 8. TEKS SEKOLAH & ANGKATAN
-            ctx.fillStyle = '#6B7280'; // Gray
+            ctx.fillStyle = '#94A3B8'; // Slate 400
             ctx.font = '600 24px "Inter", sans-serif';
-            ctx.fillText('SMPN 1 DAWAN • ANGKATAN 2026', 540, 1000);
+            ctx.letterSpacing = '2px'; // Tipuan letter spacing di canvas
+            const subtitle = 'CLASS OF 2026 • SMPN 1 DAWAN'.split('').join(String.fromCharCode(8202));
+            ctx.fillText(subtitle, 540, 1010);
 
-            // 9. LOGO SEKOLAH (Kiri Atas)
+            // 5. ORNAMEN FLOATING & EMOJI
+            ctx.font = '100px sans-serif';
+            ctx.fillText('🎓', 900, 200); // Kanan atas
+            ctx.font = '80px sans-serif';
+            ctx.fillText('✨', 180, 250); // Kiri atas
+            ctx.font = '90px sans-serif';
+            ctx.fillText('🚀', 150, 750); // Kiri bawah
+
+            // 6. LOGO SEKOLAH ELEGAN KIRI ATAS
             if (schoolLogo) {
-                ctx.beginPath();
-                ctx.arc(140, 140, 70, 0, Math.PI * 2);
-                ctx.fillStyle = '#FFF';
-                ctx.shadowColor = "rgba(0,0,0,0.2)";
-                ctx.shadowBlur = 15;
+                ctx.shadowColor = 'rgba(0,0,0,0.4)';
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = 'rgba(255,255,255,0.1)'; // Efek glass tipis di belakang logo
+                drawRoundRect(ctx, 60, 60, 140, 140, 40);
                 ctx.fill();
                 ctx.shadowBlur = 0;
-                ctx.drawImage(schoolLogo, 80, 80, 120, 120);
+                ctx.drawImage(schoolLogo, 80, 80, 100, 100);
             }
 
-            // 10. WATERMARK KECIL
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-            ctx.font = 'italic 20px "Inter", sans-serif';
+            // 7. WATERMARK ELEGANT
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.font = 'italic 18px "Inter", sans-serif';
             ctx.textAlign = 'right';
-            ctx.fillText('Generated by System ✅', 1050, 40);
+            ctx.fillText('Official Announcement • Generated by System', 1040, 50);
 
             return cvs.toDataURL('image/jpeg', 0.95);
         }
@@ -957,11 +1041,11 @@
             if(!generatedTwibbonURL) return;
             const d = currentUserData;
             const link = document.createElement('a');
-            link.download = `Twibbon_Lulus_${d?.NISN || '123'}.jpg`;
+            link.download = `Twibbon_Premium_${d?.NISN || '123'}.jpg`;
             link.href = generatedTwibbonURL;
             link.click();
             
-            Swal.fire({ title: 'Diunduh!', text: 'Jika gambar gagal tersimpan otomatis, tekan dan tahan gambar untuk menyimpannya.', icon: 'success', confirmButtonColor: '#10B981' });
+            Swal.fire({ title: 'Tersimpan!', text: 'Gunakan hashtag #Lulus2026 saat memposting di sosmed!', icon: 'success', confirmButtonColor: '#10B981' });
         }
 
         // ------------------------------------------
@@ -1010,7 +1094,6 @@
                 }
             });
 
-            // Trigger load untuk tab tertentu
             if(target === 'tab-log') loadDataLog();
         }
 
@@ -1063,7 +1146,6 @@
                 let div = document.createElement('div');
                 div.className = "flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors group";
                 
-                // BUG FIX: Hapus truncate di wrapper teks nama agar tampil full
                 div.innerHTML = `
                     <div class="flex items-center gap-3 overflow-hidden">
                         <div class="w-10 h-10 rounded-full bg-blue-50 text-ig-blue flex items-center justify-center font-bold text-sm shrink-0 border border-blue-100">
