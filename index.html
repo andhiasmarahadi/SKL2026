@@ -208,7 +208,7 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- VIEW 3: HASIL KELULUSAN                    -->
+        <!-- VIEW 3: HASIL KELULUSAN (GLASSMORPHISM)    -->
         <!-- ========================================== -->
         <div id="view-siswa-result" class="view-section flex-col w-full min-h-screen relative items-center py-6 px-4 overflow-hidden bg-cover bg-center transition-all duration-700">
             <!-- Animated Background Gradient -->
@@ -273,7 +273,7 @@
             <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden flex flex-col shadow-2xl animate-slide-up">
                 
                 <div class="p-4 bg-gray-900 text-white flex justify-between items-center z-10 relative">
-                    <h3 class="font-bold text-sm"><i class="fas fa-magic mr-2 text-yellow-300"></i>Premium Twibbon</h3>
+                    <h3 class="font-bold text-sm"><i class="fas fa-magic mr-2 text-yellow-300"></i>Studio Twibbon</h3>
                     <button onclick="closeCameraModal()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
                 </div>
                 
@@ -283,8 +283,8 @@
                         <video id="camera-feed" class="w-full h-full object-cover" autoplay playsinline></video>
                         <canvas id="camera-canvas" class="hidden"></canvas>
                         
-                        <!-- Frame Overlay Bantuan Sesuai Desain Bulat Baru -->
-                        <div class="absolute inset-0 pointer-events-none flex items-center justify-center pb-12">
+                        <!-- Frame Overlay Bantuan Sesuai Desain Bulat -->
+                        <div class="absolute inset-0 pointer-events-none flex items-center justify-center pb-4">
                             <div class="w-[75%] aspect-square rounded-full border-4 border-dashed border-white/70 shadow-[0_0_0_9999px_rgba(0,0,0,0.6)]"></div>
                         </div>
                         <div class="absolute bottom-6 left-0 w-full text-center text-white text-xs drop-shadow-md font-medium px-4">Posisikan wajah Anda di dalam lingkaran</div>
@@ -340,7 +340,7 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- VIEW 5: ADMIN DASHBOARD (Tidak ada perubahan) -->
+        <!-- VIEW 5: ADMIN DASHBOARD                    -->
         <!-- ========================================== -->
         <div id="view-admin-dashboard" class="view-section flex-col w-full h-full bg-gray-50 relative pb-[60px]">
             <div class="bg-white border-b border-gray-200 h-14 flex items-center justify-between px-4 sticky top-0 z-30 shadow-sm shrink-0">
@@ -528,14 +528,8 @@
         // ==========================================
         // KONFIGURASI APLIKASI UTAMA
         // ==========================================
-        const IS_PREVIEW = false; // UBAH KE FALSE SAAT DEPLOY
+        const IS_PREVIEW = false; // UBAH KE FALSE SAAT DEPLOY KE BLOGGER
         const GAS_URL = "https://script.google.com/macros/s/AKfycbxkZDGG31MzMc9LUo52HKtoETRsgLDd-jrJKqW0VavXQx61-x8Szbt4vViqIxqbcjNi/exec";
-        
-        // PENTING: Jika Anda ingin menggunakan gambar "twb1.png" milik Anda,
-        // Unggah gambar Anda ke situs https://postimages.org/ atau https://imgbb.com/
-        // Lalu salin link gambarnya (yang berakhiran .png / .jpg) dan tempel di bawah ini.
-        // Jika dibiarkan kosong "", sistem otomatis menggunakan DESAIN CADANGAN ESTETIK.
-        const TWIBBON_FRAME_URL = "https://i.imghippo.com/files/Ligd2810dk.png"; 
 
         let targetDate = new Date().getTime() + (1000 * 5); // Dummy 5 detik untuk preview
         let countdownInterval;
@@ -796,7 +790,7 @@
         }
 
         // ------------------------------------------
-        // KAMERA & TWIBBON GENERATOR
+        // KAMERA & TWIBBON GENERATOR PURE CANVAS
         // ------------------------------------------
         let videoStream = null;
 
@@ -862,7 +856,7 @@
             btnCap.classList.add('hidden'); btnProc.classList.remove('hidden');
 
             try {
-                generatedTwibbonURL = await createTwibbonModern(photoDataUrl);
+                generatedTwibbonURL = await createTwibbonMandiri(photoDataUrl);
                 document.getElementById('twibbon-preview').src = generatedTwibbonURL;
                 document.getElementById('step-kamera').style.display = 'none';
                 document.getElementById('step-hasil').style.display = 'flex';
@@ -875,141 +869,197 @@
         }
 
         // ========================================================
-        // ENGINE TWIBBON (EXTERNAL & PURE CANVAS FALLBACK)
+        // ENGINE TWIBBON MANDIRI (100% PURE CANVAS DESAIN BARU)
         // ========================================================
-        async function createTwibbonModern(photoDataUrl) {
+        async function createTwibbonMandiri(photoDataUrl) {
             const cvs = document.createElement('canvas');
             cvs.width = 1080; cvs.height = 1080;
             const ctx = cvs.getContext('2d');
             const d = currentUserData;
 
             // Load resources
-            const [userPhoto, frameImage, schoolLogo] = await Promise.all([
+            const [userPhoto, schoolLogo] = await Promise.all([
                 loadImageUrl(photoDataUrl),
-                loadImageUrl(TWIBBON_FRAME_URL), // Memuat template asli dari Anda (jika link diisi)
                 loadImageUrl('https://i.ibb.co.com/BVGjXVL7/logo-baru.png') 
             ]);
 
-            // Set background dasar
-            ctx.fillStyle = '#FFFFFF';
+            // ==========================================
+            // 1. BACKGROUND GRADIENT CERIA (Light Blue to Soft Mint/Yellow)
+            // ==========================================
+            const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1080);
+            bgGrad.addColorStop(0, '#E0F2FE'); // Light Sky Blue
+            bgGrad.addColorStop(0.5, '#FEF9C3'); // Soft Yellow
+            bgGrad.addColorStop(1, '#FCE7F3'); // Soft Pink
+            ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, 1080, 1080);
 
-            // Koordinat Lingkaran Foto
-            const photoCx = 540; 
-            const photoCy = 460; // Posisi lubang agak ke atas (Mendekati twb1.png)
-            const photoRadius = 350;
-
-            // ALGORITMA PENYESUAIAN TEKS OTOMATIS (Mencegah Meluber)
-            function drawAutoShrinkText(context, text, x, y, maxWidth, maxFontSize, color) {
-                context.fillStyle = color;
-                context.textAlign = 'center';
-                context.textBaseline = 'middle';
-                let fontSize = maxFontSize;
-                context.font = `900 ${fontSize}px "Inter", sans-serif`;
-                
-                // Perkecil ukuran font sampai muat dalam maxWidth
-                while (context.measureText(text).width > maxWidth && fontSize > 20) {
-                    fontSize -= 2;
-                    context.font = `900 ${fontSize}px "Inter", sans-serif`;
+            // ==========================================
+            // 2. POLA DEKORATIF (Blobs & Polkadot)
+            // ==========================================
+            // Polkadot Halftone Transparan
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            for(let i=0; i<1080; i+=45) {
+                for(let j=0; j<1080; j+=45) {
+                    ctx.beginPath(); ctx.arc(i, j, 4, 0, Math.PI*2); ctx.fill();
                 }
-                context.fillText(text, x, y);
             }
+            
+            // Abstract Blobs
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.2)'; // Yellow blob
+            ctx.beginPath(); ctx.arc(100, 850, 300, 0, Math.PI*2); ctx.fill();
+            
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.2)'; // Blue blob
+            ctx.beginPath(); ctx.arc(950, 250, 250, 0, Math.PI*2); ctx.fill();
 
-            // ALGORITMA CENTER CROP FOTO (Mencegah Meleset/Gepeng)
-            function drawCenteredPhoto(context, photoObj, cx, cy, radius) {
-                if(!photoObj) return;
-                context.save();
-                context.beginPath();
-                context.arc(cx, cy, radius, 0, Math.PI * 2);
-                context.clip(); // Potong persis lingkaran
+            // ==========================================
+            // 3. FOTO SISWA LINGKARAN & BINGKAI PRESISI
+            // ==========================================
+            const photoCx = 540; 
+            const photoCy = 480; 
+            const photoRadius = 360;
 
-                const targetSize = radius * 2;
-                const imgRatio = photoObj.width / photoObj.height;
+            // Gambar Foto Terpotong Rapi (Auto-Center Crop)
+            if(userPhoto) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(photoCx, photoCy, photoRadius, 0, Math.PI * 2);
+                ctx.clip(); // Potong persis lingkaran
+
+                const targetSize = photoRadius * 2;
+                const imgRatio = userPhoto.width / userPhoto.height;
                 let drawW, drawH, drawX, drawY;
                 
-                // Logika Cover
                 if (imgRatio > 1) { // Landscape
                     drawH = targetSize; 
-                    drawW = photoObj.width * (targetSize / photoObj.height);
+                    drawW = userPhoto.width * (targetSize / userPhoto.height);
                 } else { // Portrait / Square
                     drawW = targetSize; 
-                    drawH = photoObj.height * (targetSize / photoObj.width);
+                    drawH = userPhoto.height * (targetSize / userPhoto.width);
                 }
-                drawX = cx - (drawW / 2);
-                drawY = cy - (drawH / 2);
+                drawX = photoCx - (drawW / 2);
+                drawY = photoCy - (drawH / 2);
 
-                context.drawImage(photoObj, drawX, drawY, drawW, drawH);
-                context.restore();
+                ctx.drawImage(userPhoto, drawX, drawY, drawW, drawH);
+                ctx.restore();
+            } else {
+                ctx.fillStyle = '#E2E8F0';
+                ctx.beginPath(); ctx.arc(photoCx, photoCy, photoRadius, 0, Math.PI * 2); ctx.fill();
             }
 
-            // ========================================================
-            // OPSI 1: JIKA USER MEMASUKKAN LINK GAMBAR MEREKA SENDIRI
-            // ========================================================
-            if (frameImage) {
-                
-                drawCenteredPhoto(ctx, userPhoto, photoCx, photoCy, photoRadius); // Gambar foto
-                ctx.drawImage(frameImage, 0, 0, 1080, 1080); // Tumpuk frame pengguna
-                
-                // Cetak Nama Siswa di kotak bawah (twb1.png posisi Y = 950)
-                const namaSiswa = (d?.Nama_Siswa || 'NAMA SISWA').toUpperCase();
-                drawAutoShrinkText(ctx, namaSiswa, 540, 950, 620, 45, '#2E7D32'); 
-            } 
-            // ========================================================
-            // OPSI 2: JIKA KOSONG -> JALANKAN DESAIN CADANGAN MODERN (CANVA STYLE)
-            // ========================================================
-            else {
-                // 1. Background Glass Pastel
-                const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1080);
-                bgGrad.addColorStop(0, '#FFE5E5'); // Soft Pink
-                bgGrad.addColorStop(1, '#E5F0FF'); // Soft Blue
-                ctx.fillStyle = bgGrad; ctx.fillRect(0,0,1080,1080);
+            // Bingkai Putih Solid (Outer Shadow)
+            ctx.lineWidth = 30; 
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.beginPath(); 
+            ctx.arc(photoCx, photoCy, photoRadius, 0, Math.PI*2);
+            ctx.shadowColor = 'rgba(0,0,0,0.15)'; 
+            ctx.shadowBlur = 20; 
+            ctx.stroke(); 
+            ctx.shadowBlur = 0; // Reset
 
-                // Blobs Aesthetic
-                ctx.fillStyle = '#FFFFFF'; ctx.globalAlpha = 0.6;
-                ctx.beginPath(); ctx.arc(100, 150, 150, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(950, 850, 200, 0, Math.PI*2); ctx.fill();
-                ctx.globalAlpha = 1.0;
+            // Bingkai Dash Pink Cerah
+            ctx.lineWidth = 10; 
+            ctx.strokeStyle = '#EC4899'; // Vibrant Pink
+            ctx.setLineDash([20, 15]); 
+            ctx.beginPath(); 
+            ctx.arc(photoCx, photoCy, photoRadius + 25, 0, Math.PI*2); 
+            ctx.stroke(); 
+            ctx.setLineDash([]); // Reset dash
 
-                // 2. Foto Siswa & Border Bersinar
-                drawCenteredPhoto(ctx, userPhoto, photoCx, photoCy, photoRadius);
-                
-                ctx.lineWidth = 25; ctx.strokeStyle = '#FFFFFF';
-                ctx.beginPath(); ctx.arc(photoCx, photoCy, photoRadius, 0, Math.PI*2);
-                ctx.shadowColor = 'rgba(0,0,0,0.15)'; ctx.shadowBlur = 25; ctx.stroke(); ctx.shadowBlur = 0;
+            // ==========================================
+            // 4. TEKS HEADER UTAMA ("SAYA LULUS")
+            // ==========================================
+            const textY = 160;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = '900 110px "Inter", sans-serif';
+            
+            // Efek 3D Stroke Putih Tebal
+            ctx.lineWidth = 25; 
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.strokeText('SAYA LULUS!', 540, textY);
+            
+            // Warna Orange Gradien
+            const gradLulus = ctx.createLinearGradient(0, textY-60, 0, textY+60);
+            gradLulus.addColorStop(0, '#FCD34D'); // Yellow
+            gradLulus.addColorStop(1, '#F59E0B'); // Orange
+            ctx.fillStyle = gradLulus;
+            ctx.fillText('SAYA LULUS!', 540, textY);
 
-                // 3. Elemen 3D Lulus (Pill Merah Muda)
-                ctx.fillStyle = '#FF477E'; // Vibrant Pink
-                ctx.shadowColor = 'rgba(255, 71, 126, 0.4)'; ctx.shadowBlur = 20; ctx.shadowOffsetY = 10;
-                drawRoundRect(ctx, 140, 780, 800, 110, 55); ctx.fill();
-                ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+            // ==========================================
+            // 5. BANNER NAMA (NAMEPLATE) DI BAWAH
+            // ==========================================
+            const bannerY = 850;
+            const bannerW = 800;
+            const bannerH = 130;
+            const bannerX = (1080 - bannerW) / 2;
 
-                ctx.fillStyle = '#FFFFFF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.font = '900 65px "Inter", sans-serif';
-                ctx.fillText('🎓 SAYA LULUS!', 540, 840);
+            // Lapisan Shadow/3D Background (Biru Gelap)
+            ctx.fillStyle = '#1E3A8A';
+            drawRoundRect(ctx, bannerX, bannerY + 12, bannerW, bannerH, 65); 
+            ctx.fill();
 
-                // 4. Name Plate (Pill Biru)
-                ctx.fillStyle = '#118AB2'; // Vibrant Blue
-                drawRoundRect(ctx, 190, 920, 700, 85, 42); ctx.fill();
-                const namaSiswa = (d?.Nama_Siswa || 'Siswa Berprestasi').toUpperCase();
-                drawAutoShrinkText(ctx, namaSiswa, 540, 965, 600, 40, '#FFFFFF'); // Nama Anti-Lewat
+            // Lapisan Depan (Biru Terang / Indigo)
+            ctx.fillStyle = '#3B82F6'; 
+            drawRoundRect(ctx, bannerX, bannerY, bannerW, bannerH, 65); 
+            ctx.fill();
 
-                // 5. Logo & Header Kelas
-                if (schoolLogo) {
-                    ctx.fillStyle = '#FFFFFF'; ctx.shadowColor = 'rgba(0,0,0,0.1)'; ctx.shadowBlur = 10;
-                    ctx.beginPath(); ctx.arc(140, 140, 80, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
-                    ctx.drawImage(schoolLogo, 80, 80, 120, 120);
-                }
+            // Teks Nama (Algoritma Auto Shrink - Tidak Akan Meluber)
+            const namaSiswa = (d?.Nama_Siswa || 'SISWA BERPRESTASI').toUpperCase();
+            let fontSize = 55;
+            ctx.font = `900 ${fontSize}px "Inter", sans-serif`;
+            const maxNameWidth = bannerW - 100;
 
-                ctx.fillStyle = '#FFFFFF'; drawRoundRect(ctx, 300, 60, 480, 70, 35); ctx.fill();
-                ctx.fillStyle = '#118AB2'; ctx.font = '900 25px "Inter", sans-serif';
-                ctx.fillText('SMP NEGERI 1 DAWAN • 2026', 540, 95);
+            while (ctx.measureText(namaSiswa).width > maxNameWidth && fontSize > 25) {
+                fontSize -= 2;
+                ctx.font = `900 ${fontSize}px "Inter", sans-serif`;
+            }
+            
+            ctx.fillStyle = '#FFFFFF';
+            ctx.shadowColor = 'rgba(0,0,0,0.2)'; 
+            ctx.shadowBlur = 5; 
+            ctx.shadowOffsetY = 3;
+            ctx.fillText(namaSiswa, 540, bannerY + 65);
+            ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; // Reset
 
-                // 6. Confetti Kecil & Bintang
-                const colors = ['#FFD166', '#06D6A0', '#118AB2', '#EF476F'];
-                for(let i=0; i<30; i++) {
-                    ctx.fillStyle = colors[i % colors.length];
-                    ctx.beginPath(); ctx.arc(Math.random()*1080, Math.random()*1080, Math.random()*6 + 4, 0, Math.PI*2); ctx.fill();
-                }
+            // Subteks Sekolah & Angkatan
+            ctx.fillStyle = '#1E293B'; // Dark Slate
+            ctx.font = '800 24px "Inter", sans-serif';
+            ctx.fillText('ANGKATAN 2026 • SMP NEGERI 1 DAWAN', 540, 1020);
+
+            // ==========================================
+            // 6. EMOJI DEKORASI & BADGE ANGKATAN
+            // ==========================================
+            // Topi Toga di pojok kanan foto
+            ctx.font = '160px sans-serif';
+            ctx.save(); ctx.translate(850, 260); ctx.rotate(15 * Math.PI/180); ctx.fillText('🎓', 0, 0); ctx.restore();
+
+            // Emoji meriah tersebar
+            ctx.font = '120px sans-serif';
+            ctx.fillText('✨', 220, 250);
+            ctx.fillText('🎉', 180, 800);
+            ctx.fillText('🏅', 900, 820);
+
+            // Badge Angkatan Kanan Atas
+            ctx.save();
+            ctx.translate(920, 140);
+            ctx.rotate(10 * Math.PI/180);
+            ctx.fillStyle = '#FFFFFF'; drawRoundRect(ctx, -100, -40, 200, 80, 20); ctx.fill();
+            ctx.fillStyle = '#10B981'; drawRoundRect(ctx, -90, -30, 180, 60, 15); ctx.fill(); // Emerald Green
+            ctx.fillStyle = '#FFFFFF'; ctx.font = '900 35px "Inter", sans-serif'; ctx.fillText('CLASS OF', 0, -5);
+            ctx.fillStyle = '#FDE047'; ctx.fillText('2026', 0, 25);
+            ctx.restore();
+
+            // ==========================================
+            // 7. LOGO SEKOLAH (Kiri Atas)
+            // ==========================================
+            if (schoolLogo) {
+                const logoX = 140, logoY = 140, logoRadius = 70;
+                ctx.fillStyle = '#FFFFFF'; 
+                ctx.shadowColor = 'rgba(0,0,0,0.15)'; ctx.shadowBlur = 15;
+                ctx.beginPath(); ctx.arc(logoX, logoY, logoRadius + 10, 0, Math.PI*2); ctx.fill(); 
+                ctx.shadowBlur = 0; // Reset
+
+                ctx.drawImage(schoolLogo, logoX - logoRadius, logoY - logoRadius, logoRadius*2, logoRadius*2);
             }
 
             return cvs.toDataURL('image/jpeg', 0.95);
