@@ -285,12 +285,11 @@
                         <video id="camera-feed" class="w-full h-full object-cover" autoplay playsinline></video>
                         <canvas id="camera-canvas" class="hidden"></canvas>
                         
-                        <!-- Frame Overlay Bantuan -->
+                        <!-- Frame Overlay Bantuan Sesuai Desain Bulat Baru -->
                         <div class="absolute inset-0 pointer-events-none flex items-center justify-center p-8">
-                            <!-- Bingkai bantuan kotak memanjang mengikuti bentuk polaroid -->
-                            <div class="w-full h-[80%] rounded-2xl border-4 border-dashed border-white/50 shadow-[0_0_0_9999px_rgba(0,0,0,0.6)]"></div>
+                            <div class="w-full aspect-square max-w-[300px] rounded-full border-4 border-dashed border-white/70 shadow-[0_0_0_9999px_rgba(0,0,0,0.6)]"></div>
                         </div>
-                        <div class="absolute bottom-6 left-0 w-full text-center text-white text-xs drop-shadow-md font-medium px-4">Posisikan diri Anda di dalam bingkai</div>
+                        <div class="absolute bottom-6 left-0 w-full text-center text-white text-xs drop-shadow-md font-medium px-4">Posisikan wajah Anda di dalam lingkaran</div>
                     </div>
                     
                     <div class="p-6 bg-white flex justify-center items-center">
@@ -901,7 +900,7 @@
             }
         }
 
-        // TWIBBON GENERATOR DENGAN DESAIN MODERN & ELEGAN (Floating Card Style)
+        // TWIBBON GENERATOR DENGAN DESAIN COLORFUL CERIA (Sesuai Referensi)
         async function createTwibbonModern(photoDataUrl) {
             const cvs = document.createElement('canvas');
             cvs.width = 1080; cvs.height = 1080;
@@ -913,126 +912,190 @@
                 loadImageUrl('https://i.ibb.co.com/BVGjXVL7/logo-baru.png') 
             ]);
 
-            // 1. BACKGROUND GRADIENT (Premium Dark Blue)
-            const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1080);
-            bgGrad.addColorStop(0, '#020617'); // Very Dark Slate
-            bgGrad.addColorStop(0.5, '#1e3a8a'); // Deep Blue
-            bgGrad.addColorStop(1, '#0f172a');
-            ctx.fillStyle = bgGrad;
+            // 1. BACKGROUND SUNBURST (Colorful & Ceria)
+            ctx.fillStyle = '#E1F5FE'; // Light Blue base
             ctx.fillRect(0, 0, 1080, 1080);
+            
+            const numRays = 24;
+            const cx = 540, cy = 540;
+            const outerRadius = 1500;
+            ctx.fillStyle = '#FFF9C4'; // Light Yellow rays
+            for(let i=0; i<numRays; i+=2) {
+                let angle1 = (i * 2 * Math.PI) / numRays;
+                let angle2 = ((i + 1) * 2 * Math.PI) / numRays;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(angle1)*outerRadius, cy + Math.sin(angle1)*outerRadius);
+                ctx.lineTo(cx + Math.cos(angle2)*outerRadius, cy + Math.sin(angle2)*outerRadius);
+                ctx.closePath();
+                ctx.fill();
+            }
 
-            // 2. GLOW & ABSTRACT SHAPES (Lighting effects)
-            const glow1 = ctx.createRadialGradient(800, 200, 0, 800, 200, 600);
-            glow1.addColorStop(0, 'rgba(252, 211, 77, 0.25)'); // Gold glow
-            glow1.addColorStop(1, 'rgba(252, 211, 77, 0)');
-            ctx.fillStyle = glow1; ctx.fillRect(0,0,1080,1080);
+            // Polkadot tipis (halftone pattern simulation)
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            for(let i=0; i<1080; i+=40) {
+                for(let j=0; j<1080; j+=40) {
+                    ctx.beginPath(); ctx.arc(i, j, 4, 0, Math.PI*2); ctx.fill();
+                }
+            }
 
-            const glow2 = ctx.createRadialGradient(200, 800, 0, 200, 800, 500);
-            glow2.addColorStop(0, 'rgba(56, 189, 248, 0.3)'); // Cyan glow
-            glow2.addColorStop(1, 'rgba(56, 189, 248, 0)');
-            ctx.fillStyle = glow2; ctx.fillRect(0,0,1080,1080);
+            const photoCx = 540;
+            const photoCy = 520;
+            const photoRadius = 380;
 
-            // 3. FLOATING POLAROID FRAME (Miring estetik)
+            // 2. FOTO SISWA (Di dalam Lingkaran)
             ctx.save();
-            ctx.translate(540, 480);
-            ctx.rotate(-4 * Math.PI / 180); // Miring -4 derajat
-            
-            // Bayangan Premium (Soft but deep shadow)
-            ctx.shadowColor = 'rgba(0,0,0,0.5)';
-            ctx.shadowBlur = 50;
-            ctx.shadowOffsetY = 25;
-            
-            // Bingkai putih luar
-            ctx.fillStyle = '#FFFFFF';
-            drawRoundRect(ctx, -380, -380, 760, 800, 40);
-            ctx.fill();
-            
-            // Matikan bayangan untuk isi
-            ctx.shadowColor = 'transparent';
-            
-            // Area foto (inner mask)
-            drawRoundRect(ctx, -350, -350, 700, 600, 20);
-            ctx.save();
+            ctx.beginPath();
+            ctx.arc(photoCx, photoCy, photoRadius, 0, Math.PI * 2);
             ctx.clip();
             
-            // Draw & Scale Photo
             if(userPhoto) {
                 const imgRatio = userPhoto.width / userPhoto.height;
-                const areaRatio = 700 / 600;
                 let drawW, drawH, drawX, drawY;
-
-                if (imgRatio > areaRatio) {
-                    drawH = 600; drawW = userPhoto.width * (600 / userPhoto.height);
-                    drawX = -350 - (drawW - 700) / 2; drawY = -350;
-                } else {
-                    drawW = 700; drawH = userPhoto.height * (700 / userPhoto.width);
-                    drawX = -350; drawY = -350 - (drawH - 600) / 2;
+                if (imgRatio > 1) { // Landscape
+                    drawH = photoRadius * 2; drawW = userPhoto.width * (drawH / userPhoto.height);
+                    drawX = photoCx - drawW / 2; drawY = photoCy - photoRadius;
+                } else { // Portrait / Square
+                    drawW = photoRadius * 2; drawH = userPhoto.height * (drawW / userPhoto.width);
+                    drawX = photoCx - photoRadius; drawY = photoCy - (drawH - (photoRadius*2))/2;
                 }
                 ctx.drawImage(userPhoto, drawX, drawY, drawW, drawH);
+            } else {
+                ctx.fillStyle = '#E2E8F0'; ctx.fill();
             }
-            ctx.restore(); // Lepas clip foto
+            ctx.restore();
 
-            // Badge Emas "SAYA LULUS" di dalam polaroid bawah
-            const badgeGrad = ctx.createLinearGradient(-350, 280, 350, 280);
-            badgeGrad.addColorStop(0, '#F59E0B');
-            badgeGrad.addColorStop(0.5, '#FBBF24');
-            badgeGrad.addColorStop(1, '#F59E0B');
-            ctx.fillStyle = badgeGrad;
-            drawRoundRect(ctx, -200, 290, 400, 80, 40);
-            ctx.fill();
+            // 3. BINGKAI LINGKARAN (Putih tebal & Putus-putus Kuning)
+            ctx.beginPath();
+            ctx.arc(photoCx, photoCy, photoRadius, 0, Math.PI * 2);
+            ctx.lineWidth = 35;
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.shadowColor = 'rgba(0,0,0,0.15)'; ctx.shadowBlur = 20;
+            ctx.stroke();
+            ctx.shadowColor = 'transparent';
 
-            // Teks SAYA LULUS
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = '900 45px "Inter", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('SAYA LULUS', 0, 345);
+            ctx.beginPath();
+            ctx.arc(photoCx, photoCy, photoRadius - 10, 0, Math.PI * 2);
+            ctx.lineWidth = 8;
+            ctx.strokeStyle = '#FFCA28';
+            ctx.setLineDash([20, 15]);
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset line dash
 
-            ctx.restore(); // Kembali ke canvas lurus
-
-            // 4. TEKS INFORMASI DI BAGIAN BAWAH
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 50px "Inter", sans-serif';
+            // 4. TEKS ATAS ("Saya LULUS")
             ctx.textAlign = 'center';
             
-            let namaSiswa = (d?.Nama_Siswa || 'Siswa Berprestasi');
-            if(namaSiswa.length > 30) namaSiswa = namaSiswa.substring(0, 30) + '...';
+            // "Saya" (Cursive style)
+            ctx.font = 'italic 700 80px "Georgia", serif';
+            ctx.lineWidth = 12; ctx.strokeStyle = '#FFFFFF';
+            ctx.strokeText('Saya', 480, 150);
+            ctx.fillStyle = '#FF7043'; // Orange
+            ctx.fillText('Saya', 480, 150);
+
+            // Bintang & Toga
+            ctx.font = '70px sans-serif';
+            ctx.fillText('⭐', 700, 120);
+            ctx.font = '130px sans-serif';
+            ctx.fillText('🎓', 860, 180);
+
+            // "LULUS" (Bold 3D style)
+            const textLulusY = 270;
+            ctx.font = '900 170px "Inter", sans-serif';
+            ctx.lineWidth = 35; ctx.strokeStyle = '#FFFFFF';
+            ctx.strokeText('LULUS', 540, textLulusY);
+            ctx.lineWidth = 15; ctx.strokeStyle = '#E65100'; // Dark Orange Border
+            ctx.strokeText('LULUS', 540, textLulusY);
             
-            // Efek shadow teks agar nyala
-            ctx.shadowColor = 'rgba(255,255,255,0.4)';
-            ctx.shadowBlur = 10;
-            ctx.fillText(namaSiswa, 540, 960);
-            ctx.shadowBlur = 0;
+            const gradLulus = ctx.createLinearGradient(0, textLulusY-140, 0, textLulusY);
+            gradLulus.addColorStop(0, '#FFF59D'); gradLulus.addColorStop(1, '#FFB300');
+            ctx.fillStyle = gradLulus;
+            ctx.fillText('LULUS', 540, textLulusY);
 
-            ctx.fillStyle = '#94A3B8'; // Slate 400
-            ctx.font = '600 24px "Inter", sans-serif';
-            ctx.letterSpacing = '2px'; // Tipuan letter spacing di canvas
-            const subtitle = 'CLASS OF 2026 • SMPN 1 DAWAN'.split('').join(String.fromCharCode(8202));
-            ctx.fillText(subtitle, 540, 1010);
+            // 5. PITA HIJAU ("SMP NEGERI 1 DAWAN")
+            const ribbonY = 320;
+            ctx.fillStyle = '#2E7D32'; // Dark Green Back ribbon (efek 3D pita terlipat)
+            ctx.beginPath(); ctx.moveTo(180, ribbonY+30); ctx.lineTo(150, ribbonY+70); ctx.lineTo(220, ribbonY+60); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(900, ribbonY+30); ctx.lineTo(930, ribbonY+70); ctx.lineTo(860, ribbonY+60); ctx.fill();
 
-            // 5. ORNAMEN FLOATING & EMOJI
-            ctx.font = '100px sans-serif';
-            ctx.fillText('🎓', 900, 200); // Kanan atas
-            ctx.font = '80px sans-serif';
-            ctx.fillText('✨', 180, 250); // Kiri atas
-            ctx.font = '90px sans-serif';
-            ctx.fillText('🚀', 150, 750); // Kiri bawah
+            ctx.fillStyle = '#4CAF50'; // Green ribbon main
+            drawRoundRect(ctx, 200, ribbonY, 680, 70, 35);
+            ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5; ctx.fill(); ctx.shadowBlur = 0;
+            
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '900 35px "Inter", sans-serif';
+            ctx.fillText('SMP NEGERI 1 DAWAN', 540, ribbonY + 48);
 
-            // 6. LOGO SEKOLAH ELEGAN KIRI ATAS
+            // Badge 2026 Pink
+            ctx.save();
+            ctx.translate(880, 380); ctx.rotate(-10 * Math.PI/180);
+            ctx.fillStyle = '#FFFFFF'; drawRoundRect(ctx, -105, -45, 210, 90, 15); ctx.fill();
+            ctx.fillStyle = '#EC4899'; drawRoundRect(ctx, -95, -35, 190, 70, 10); ctx.fill();
+            ctx.fillStyle = '#FFFFFF'; ctx.font = '900 50px "Inter", sans-serif'; ctx.fillText('2026', 0, 15);
+            ctx.restore();
+
+            // 6. LOGO SEKOLAH (Kiri Atas)
             if (schoolLogo) {
-                ctx.shadowColor = 'rgba(0,0,0,0.4)';
-                ctx.shadowBlur = 20;
-                ctx.fillStyle = 'rgba(255,255,255,0.1)'; // Efek glass tipis di belakang logo
-                drawRoundRect(ctx, 60, 60, 140, 140, 40);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                ctx.drawImage(schoolLogo, 80, 80, 100, 100);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 15;
+                ctx.beginPath(); ctx.arc(180, 190, 120, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
+                
+                // Inner dashed border for logo
+                ctx.beginPath(); ctx.arc(180, 190, 105, 0, Math.PI*2);
+                ctx.lineWidth = 4; ctx.strokeStyle = '#2E7D32'; ctx.setLineDash([10, 8]); ctx.stroke(); ctx.setLineDash([]);
+                
+                ctx.drawImage(schoolLogo, 95, 105, 170, 170);
             }
 
-            // 7. WATERMARK ELEGANT
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-            ctx.font = 'italic 18px "Inter", sans-serif';
-            ctx.textAlign = 'right';
-            ctx.fillText('Official Announcement • Generated by System', 1040, 50);
+            // 7. ELEMEN BAWAH (Karakter/Emoji & Nameplate)
+            // Nameplate Putih
+            const plateY = 820;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 15; ctx.shadowOffsetY = 8;
+            drawRoundRect(ctx, 190, plateY, 700, 110, 40); ctx.fill(); ctx.shadowBlur = 0;
+            
+            ctx.lineWidth = 6; ctx.strokeStyle = '#4CAF50'; drawRoundRect(ctx, 190, plateY, 700, 110, 40); ctx.stroke();
+            ctx.lineWidth = 4; ctx.strokeStyle = '#FFCA28'; ctx.setLineDash([15, 10]); drawRoundRect(ctx, 205, plateY+15, 670, 80, 25); ctx.stroke(); ctx.setLineDash([]);
+
+            // Nama Siswa
+            ctx.fillStyle = '#2E7D32';
+            ctx.font = 'bold 40px "Inter", sans-serif';
+            let namaSiswa = (d?.Nama_Siswa || 'Nama Siswa').toUpperCase();
+            if(namaSiswa.length > 28) namaSiswa = namaSiswa.substring(0, 28) + '...';
+            ctx.fillText(namaSiswa, 540, plateY + 68);
+
+            // Pita Pink Bawah
+            const pinkRibbonY = 940;
+            ctx.fillStyle = '#E91E63'; // Pink Ribbon Main
+            drawRoundRect(ctx, 220, pinkRibbonY, 640, 60, 30);
+            ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.fill(); ctx.shadowBlur = 0;
+            
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 30px "Inter", sans-serif';
+            ctx.fillText('🌿 Cerdas, Terampil, Berkarakter 🌿', 540, pinkRibbonY + 42);
+
+            // Dekorasi Karakter Kartun (Simulasi menggunakan Emojis besar agar sesuai secara estetika)
+            ctx.font = '160px sans-serif';
+            // Kiri: Ilustrasi Siswa & Ijazah
+            ctx.fillText('🙋🏻‍♂️', 160, 780);
+            ctx.font = '130px sans-serif';
+            ctx.fillText('📜', 120, 940); 
+            
+            // Kanan: Ilustrasi Siswi & Piala
+            ctx.font = '160px sans-serif';
+            ctx.fillText('🙋🏻‍♀️', 920, 780);
+            ctx.font = '130px sans-serif';
+            ctx.fillText('🏆', 960, 940);
+
+            // Konfeti Tambahan di background pinggiran (Warna-warni tipis)
+            const colors = ['#FF5252', '#448AFF', '#69F0AE', '#FFD740'];
+            for(let i=0; i<15; i++) {
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.save();
+                ctx.translate(Math.random()*1080, Math.random()*1080);
+                ctx.rotate(Math.random() * Math.PI);
+                ctx.fillRect(0, 0, 15, 30);
+                ctx.restore();
+            }
 
             return cvs.toDataURL('image/jpeg', 0.95);
         }
