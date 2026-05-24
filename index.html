@@ -235,7 +235,6 @@
                         <span class="text-[12px] font-bold text-gray-600 tracking-wider" id="res-nisn">-</span>
                     </div>
                     
-                    <!-- REVISI: Perbaikan Layout Informasi Siswa agar tidak terpotong (truncate dihilangkan) -->
                     <div class="w-full bg-white/50 p-4 rounded-2xl border border-white/50 mb-6 flex justify-between shadow-inner">
                         <div class="text-center w-1/3 border-r border-gray-200/50 flex flex-col justify-center">
                             <p class="text-[10px] font-bold text-gray-400 uppercase">Kelas</p>
@@ -243,7 +242,6 @@
                         </div>
                         <div class="text-center w-2/3 flex flex-col justify-center">
                             <p class="text-[10px] font-bold text-gray-400 uppercase">Tempat, Tgl Lahir</p>
-                            <!-- Hapus truncate, ganti dengan break-words dan leading-tight -->
                             <p class="text-[13px] font-bold text-gray-700 mt-1 px-2 leading-tight break-words" id="res-ttl">-</p>
                         </div>
                     </div>
@@ -286,8 +284,8 @@
                         <canvas id="camera-canvas" class="hidden"></canvas>
                         
                         <!-- Frame Overlay Bantuan Sesuai Desain Bulat Baru -->
-                        <div class="absolute inset-0 pointer-events-none flex items-center justify-center p-8">
-                            <div class="w-full aspect-square max-w-[300px] rounded-full border-4 border-dashed border-white/70 shadow-[0_0_0_9999px_rgba(0,0,0,0.6)]"></div>
+                        <div class="absolute inset-0 pointer-events-none flex items-center justify-center pb-12">
+                            <div class="w-full aspect-square max-w-[280px] rounded-full border-4 border-dashed border-white/70 shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]"></div>
                         </div>
                         <div class="absolute bottom-6 left-0 w-full text-center text-white text-xs drop-shadow-md font-medium px-4">Posisikan wajah Anda di dalam lingkaran</div>
                     </div>
@@ -528,12 +526,14 @@
     <!-- SCRIPT LOGIKA UTAMA -->
     <script>
         // ==========================================
-        // KONFIGURASI APLIKASI
-        // 1. Ubah IS_PREVIEW = false jika sudah dimasukkan ke Blogger
-        // 2. Wajib masukkan link URL Deploy GAS agar data asli berjalan
+        // KONFIGURASI APLIKASI UTAMA
         // ==========================================
-        const IS_PREVIEW = false; // SAYA SET TRUE AGAR BISA DITEST LANGSUNG DI CANVAS
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxkZDGG31MzMc9LUo52HKtoETRsgLDd-jrJKqW0VavXQx61-x8Szbt4vViqIxqbcjNi/exec";
+        const IS_PREVIEW = true; // SAYA SET TRUE AGAR BISA DITEST LANGSUNG DI CANVAS
+        const GAS_URL = "URL_WEB_APP_ANDA_YANG_BARU_DISALIN_TADI";
+        
+        // PENTING: ISI DENGAN LINK GAMBAR TWB1.PNG YANG SUDAH ANDA UPLOAD KE IMGBB / BLOGGER
+        // Contoh: "https://i.ibb.co.com/file_anda.png"
+        const TWIBBON_FRAME_URL = "https://i.imghippo.com/files/Ligd2810dk.png"; 
 
         let targetDate = new Date().getTime() + (1000 * 5); // Dummy 5 detik untuk preview
         let countdownInterval;
@@ -810,7 +810,7 @@
         }
 
         // ------------------------------------------
-        // KAMERA & TWIBBON GENERATOR MODERN (REVISI PREMIUM)
+        // KAMERA & TWIBBON GENERATOR MODERN (REVISI FRAME EXTERNAL)
         // ------------------------------------------
         let videoStream = null;
 
@@ -845,6 +845,7 @@
         }
 
         const loadImageUrl = (src) => new Promise((resolve, reject) => {
+            if(!src) return resolve(null);
             const img = new Image();
             img.crossOrigin = "Anonymous";
             img.onload = () => resolve(img);
@@ -900,201 +901,191 @@
             }
         }
 
-        // TWIBBON GENERATOR DENGAN DESAIN COLORFUL CERIA (Sesuai Referensi)
+        // TWIBBON GENERATOR DENGAN LOGIKA FRAME EXTERNAL (Presisi Tinggi)
         async function createTwibbonModern(photoDataUrl) {
             const cvs = document.createElement('canvas');
             cvs.width = 1080; cvs.height = 1080;
             const ctx = cvs.getContext('2d');
             const d = currentUserData;
 
-            const [userPhoto, schoolLogo] = await Promise.all([
+            // Load resources
+            const [userPhoto, frameImage, schoolLogo] = await Promise.all([
                 loadImageUrl(photoDataUrl),
+                loadImageUrl(TWIBBON_FRAME_URL), // Memuat template asli dari Anda
                 loadImageUrl('https://i.ibb.co.com/BVGjXVL7/logo-baru.png') 
             ]);
 
-            // 1. BACKGROUND SUNBURST (Colorful & Ceria)
-            ctx.fillStyle = '#E1F5FE'; // Light Blue base
+            // Set background dasar putih
+            ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, 1080, 1080);
-            
-            const numRays = 24;
-            const cx = 540, cy = 540;
-            const outerRadius = 1500;
-            ctx.fillStyle = '#FFF9C4'; // Light Yellow rays
-            for(let i=0; i<numRays; i+=2) {
-                let angle1 = (i * 2 * Math.PI) / numRays;
-                let angle2 = ((i + 1) * 2 * Math.PI) / numRays;
-                ctx.beginPath();
-                ctx.moveTo(cx, cy);
-                ctx.lineTo(cx + Math.cos(angle1)*outerRadius, cy + Math.sin(angle1)*outerRadius);
-                ctx.lineTo(cx + Math.cos(angle2)*outerRadius, cy + Math.sin(angle2)*outerRadius);
-                ctx.closePath();
-                ctx.fill();
-            }
 
-            // Polkadot tipis (halftone pattern simulation)
-            ctx.fillStyle = 'rgba(255,255,255,0.4)';
-            for(let i=0; i<1080; i+=40) {
-                for(let j=0; j<1080; j+=40) {
-                    ctx.beginPath(); ctx.arc(i, j, 4, 0, Math.PI*2); ctx.fill();
+            // ========================================================
+            // KOORDINAT PRESISI LUBANG FOTO PADA GAMBAR TWB1.PNG
+            // ========================================================
+            const photoCx = 540; 
+            const photoCy = 460; // Titik tengah sedikit ke atas
+            const photoRadius = 380; // Radius lubang lingkaran twb1.png
+
+            if (frameImage) {
+                // MENGGUNAKAN TEMPLATE EKSTERNAL (TWB1.PNG)
+                
+                // 1. Gambar Foto (Dibatasi presisi dengan clip agar tidak bocor)
+                if(userPhoto) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(photoCx, photoCy, photoRadius, 0, Math.PI * 2);
+                    ctx.clip(); // Potong persis lingkaran
+
+                    const imgRatio = userPhoto.width / userPhoto.height;
+                    let drawW, drawH, drawX, drawY;
+                    
+                    // Logic Cover agar foto otomatis penuh dan center
+                    if (imgRatio > 1) { // Foto Landscape
+                        drawH = photoRadius * 2; 
+                        drawW = userPhoto.width * (drawH / userPhoto.height);
+                    } else { // Foto Portrait / Square
+                        drawW = photoRadius * 2; 
+                        drawH = userPhoto.height * (drawW / userPhoto.width);
+                    }
+                    
+                    // Center rumus mutlak
+                    drawX = photoCx - (drawW / 2);
+                    drawY = photoCy - (drawH / 2);
+
+                    ctx.drawImage(userPhoto, drawX, drawY, drawW, drawH);
+                    ctx.restore();
                 }
-            }
 
-            const photoCx = 540;
-            const photoCy = 520;
-            const photoRadius = 380;
+                // 2. Tumpuk dengan Frame Template Anda
+                ctx.drawImage(frameImage, 0, 0, 1080, 1080);
 
-            // 2. FOTO SISWA (Di dalam Lingkaran)
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(photoCx, photoCy, photoRadius, 0, Math.PI * 2);
-            ctx.clip();
-            
-            if(userPhoto) {
-                const imgRatio = userPhoto.width / userPhoto.height;
-                let drawW, drawH, drawX, drawY;
-                if (imgRatio > 1) { // Landscape
-                    drawH = photoRadius * 2; drawW = userPhoto.width * (drawH / userPhoto.height);
-                    drawX = photoCx - drawW / 2; drawY = photoCy - photoRadius;
-                } else { // Portrait / Square
-                    drawW = photoRadius * 2; drawH = userPhoto.height * (drawW / userPhoto.width);
-                    drawX = photoCx - photoRadius; drawY = photoCy - (drawH - (photoRadius*2))/2;
+                // 3. Gambar Teks Nama Siswa di atas Nameplate (Anti-Lewat)
+                let namaSiswa = (d?.Nama_Siswa || 'NAMA SISWA').toUpperCase();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#2E7D32'; // Hijau tua sesuai template
+                
+                // Skala font dinamis
+                let fontSize = 45;
+                ctx.font = `900 ${fontSize}px "Inter", sans-serif`;
+                const maxTextWidth = 650; // Lebar maksimal kotak putih di bawah
+
+                // Kurangi ukuran font otomatis jika nama terlalu panjang
+                while (ctx.measureText(namaSiswa).width > maxTextWidth && fontSize > 20) {
+                    fontSize -= 2;
+                    ctx.font = `900 ${fontSize}px "Inter", sans-serif`;
                 }
-                ctx.drawImage(userPhoto, drawX, drawY, drawW, drawH);
+
+                // Titik Y = 935 adalah posisi center kotak bawah pada twb1.png
+                ctx.fillText(namaSiswa, 540, 935);
+
             } else {
-                ctx.fillStyle = '#E2E8F0'; ctx.fill();
-            }
-            ctx.restore();
-
-            // 3. BINGKAI LINGKARAN (Putih tebal & Putus-putus Kuning)
-            ctx.beginPath();
-            ctx.arc(photoCx, photoCy, photoRadius, 0, Math.PI * 2);
-            ctx.lineWidth = 35;
-            ctx.strokeStyle = '#FFFFFF';
-            ctx.shadowColor = 'rgba(0,0,0,0.15)'; ctx.shadowBlur = 20;
-            ctx.stroke();
-            ctx.shadowColor = 'transparent';
-
-            ctx.beginPath();
-            ctx.arc(photoCx, photoCy, photoRadius - 10, 0, Math.PI * 2);
-            ctx.lineWidth = 8;
-            ctx.strokeStyle = '#FFCA28';
-            ctx.setLineDash([20, 15]);
-            ctx.stroke();
-            ctx.setLineDash([]); // Reset line dash
-
-            // 4. TEKS ATAS ("Saya LULUS")
-            ctx.textAlign = 'center';
-            
-            // "Saya" (Cursive style)
-            ctx.font = 'italic 700 80px "Georgia", serif';
-            ctx.lineWidth = 12; ctx.strokeStyle = '#FFFFFF';
-            ctx.strokeText('Saya', 480, 150);
-            ctx.fillStyle = '#FF7043'; // Orange
-            ctx.fillText('Saya', 480, 150);
-
-            // Bintang & Toga
-            ctx.font = '70px sans-serif';
-            ctx.fillText('⭐', 700, 120);
-            ctx.font = '130px sans-serif';
-            ctx.fillText('🎓', 860, 180);
-
-            // "LULUS" (Bold 3D style)
-            const textLulusY = 270;
-            ctx.font = '900 170px "Inter", sans-serif';
-            ctx.lineWidth = 35; ctx.strokeStyle = '#FFFFFF';
-            ctx.strokeText('LULUS', 540, textLulusY);
-            ctx.lineWidth = 15; ctx.strokeStyle = '#E65100'; // Dark Orange Border
-            ctx.strokeText('LULUS', 540, textLulusY);
-            
-            const gradLulus = ctx.createLinearGradient(0, textLulusY-140, 0, textLulusY);
-            gradLulus.addColorStop(0, '#FFF59D'); gradLulus.addColorStop(1, '#FFB300');
-            ctx.fillStyle = gradLulus;
-            ctx.fillText('LULUS', 540, textLulusY);
-
-            // 5. PITA HIJAU ("SMP NEGERI 1 DAWAN")
-            const ribbonY = 320;
-            ctx.fillStyle = '#2E7D32'; // Dark Green Back ribbon (efek 3D pita terlipat)
-            ctx.beginPath(); ctx.moveTo(180, ribbonY+30); ctx.lineTo(150, ribbonY+70); ctx.lineTo(220, ribbonY+60); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(900, ribbonY+30); ctx.lineTo(930, ribbonY+70); ctx.lineTo(860, ribbonY+60); ctx.fill();
-
-            ctx.fillStyle = '#4CAF50'; // Green ribbon main
-            drawRoundRect(ctx, 200, ribbonY, 680, 70, 35);
-            ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5; ctx.fill(); ctx.shadowBlur = 0;
-            
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = '900 35px "Inter", sans-serif';
-            ctx.fillText('SMP NEGERI 1 DAWAN', 540, ribbonY + 48);
-
-            // Badge 2026 Pink
-            ctx.save();
-            ctx.translate(880, 380); ctx.rotate(-10 * Math.PI/180);
-            ctx.fillStyle = '#FFFFFF'; drawRoundRect(ctx, -105, -45, 210, 90, 15); ctx.fill();
-            ctx.fillStyle = '#EC4899'; drawRoundRect(ctx, -95, -35, 190, 70, 10); ctx.fill();
-            ctx.fillStyle = '#FFFFFF'; ctx.font = '900 50px "Inter", sans-serif'; ctx.fillText('2026', 0, 15);
-            ctx.restore();
-
-            // 6. LOGO SEKOLAH (Kiri Atas)
-            if (schoolLogo) {
-                ctx.fillStyle = '#FFFFFF';
-                ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 15;
-                ctx.beginPath(); ctx.arc(180, 190, 120, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
+                // ========================================================
+                // FALLBACK MODE (JIKA TWIBBON_FRAME_URL KOSONG)
+                // Desain Canvas Cadangan Mirip TWB1.PNG
+                // ========================================================
+                ctx.fillStyle = '#E1F5FE'; ctx.fillRect(0, 0, 1080, 1080);
                 
-                // Inner dashed border for logo
-                ctx.beginPath(); ctx.arc(180, 190, 105, 0, Math.PI*2);
-                ctx.lineWidth = 4; ctx.strokeStyle = '#2E7D32'; ctx.setLineDash([10, 8]); ctx.stroke(); ctx.setLineDash([]);
-                
-                ctx.drawImage(schoolLogo, 95, 105, 170, 170);
-            }
+                // Sunburst
+                const numRays = 24; const cx = 540, cy = 540; const outerRadius = 1500;
+                ctx.fillStyle = '#FFF9C4'; 
+                for(let i=0; i<numRays; i+=2) {
+                    let angle1 = (i * 2 * Math.PI) / numRays;
+                    let angle2 = ((i + 1) * 2 * Math.PI) / numRays;
+                    ctx.beginPath(); ctx.moveTo(cx, cy);
+                    ctx.lineTo(cx + Math.cos(angle1)*outerRadius, cy + Math.sin(angle1)*outerRadius);
+                    ctx.lineTo(cx + Math.cos(angle2)*outerRadius, cy + Math.sin(angle2)*outerRadius);
+                    ctx.closePath(); ctx.fill();
+                }
 
-            // 7. ELEMEN BAWAH (Karakter/Emoji & Nameplate)
-            // Nameplate Putih
-            const plateY = 820;
-            ctx.fillStyle = '#FFFFFF';
-            ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 15; ctx.shadowOffsetY = 8;
-            drawRoundRect(ctx, 190, plateY, 700, 110, 40); ctx.fill(); ctx.shadowBlur = 0;
-            
-            ctx.lineWidth = 6; ctx.strokeStyle = '#4CAF50'; drawRoundRect(ctx, 190, plateY, 700, 110, 40); ctx.stroke();
-            ctx.lineWidth = 4; ctx.strokeStyle = '#FFCA28'; ctx.setLineDash([15, 10]); drawRoundRect(ctx, 205, plateY+15, 670, 80, 25); ctx.stroke(); ctx.setLineDash([]);
-
-            // Nama Siswa
-            ctx.fillStyle = '#2E7D32';
-            ctx.font = 'bold 40px "Inter", sans-serif';
-            let namaSiswa = (d?.Nama_Siswa || 'Nama Siswa').toUpperCase();
-            if(namaSiswa.length > 28) namaSiswa = namaSiswa.substring(0, 28) + '...';
-            ctx.fillText(namaSiswa, 540, plateY + 68);
-
-            // Pita Pink Bawah
-            const pinkRibbonY = 940;
-            ctx.fillStyle = '#E91E63'; // Pink Ribbon Main
-            drawRoundRect(ctx, 220, pinkRibbonY, 640, 60, 30);
-            ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.fill(); ctx.shadowBlur = 0;
-            
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 30px "Inter", sans-serif';
-            ctx.fillText('🌿 Cerdas, Terampil, Berkarakter 🌿', 540, pinkRibbonY + 42);
-
-            // Dekorasi Karakter Kartun (Simulasi menggunakan Emojis besar agar sesuai secara estetika)
-            ctx.font = '160px sans-serif';
-            // Kiri: Ilustrasi Siswa & Ijazah
-            ctx.fillText('🙋🏻‍♂️', 160, 780);
-            ctx.font = '130px sans-serif';
-            ctx.fillText('📜', 120, 940); 
-            
-            // Kanan: Ilustrasi Siswi & Piala
-            ctx.font = '160px sans-serif';
-            ctx.fillText('🙋🏻‍♀️', 920, 780);
-            ctx.font = '130px sans-serif';
-            ctx.fillText('🏆', 960, 940);
-
-            // Konfeti Tambahan di background pinggiran (Warna-warni tipis)
-            const colors = ['#FF5252', '#448AFF', '#69F0AE', '#FFD740'];
-            for(let i=0; i<15; i++) {
-                ctx.fillStyle = colors[i % colors.length];
+                // Foto (Perbaikan Bug Center)
                 ctx.save();
-                ctx.translate(Math.random()*1080, Math.random()*1080);
-                ctx.rotate(Math.random() * Math.PI);
-                ctx.fillRect(0, 0, 15, 30);
+                ctx.beginPath(); ctx.arc(photoCx, photoCy, photoRadius, 0, Math.PI * 2); ctx.clip();
+                if(userPhoto) {
+                    const imgRatio = userPhoto.width / userPhoto.height;
+                    let drawW, drawH, drawX, drawY;
+                    if (imgRatio > 1) { 
+                        drawH = photoRadius * 2; drawW = userPhoto.width * (drawH / userPhoto.height);
+                    } else { 
+                        drawW = photoRadius * 2; drawH = userPhoto.height * (drawW / userPhoto.width);
+                    }
+                    drawX = photoCx - (drawW / 2); drawY = photoCy - (drawH / 2); // BUG FIXED HERE
+                    ctx.drawImage(userPhoto, drawX, drawY, drawW, drawH);
+                } else {
+                    ctx.fillStyle = '#E2E8F0'; ctx.fill();
+                }
                 ctx.restore();
+
+                // Bingkai
+                ctx.beginPath(); ctx.arc(photoCx, photoCy, photoRadius, 0, Math.PI * 2);
+                ctx.lineWidth = 35; ctx.strokeStyle = '#FFFFFF';
+                ctx.shadowColor = 'rgba(0,0,0,0.15)'; ctx.shadowBlur = 20; ctx.stroke(); ctx.shadowColor = 'transparent';
+                ctx.beginPath(); ctx.arc(photoCx, photoCy, photoRadius - 10, 0, Math.PI * 2);
+                ctx.lineWidth = 8; ctx.strokeStyle = '#FFCA28'; ctx.setLineDash([20, 15]); ctx.stroke(); ctx.setLineDash([]);
+
+                // "Saya LULUS"
+                const textLulusY = 270;
+                ctx.textAlign = 'center'; ctx.font = 'italic 700 80px "Georgia", serif';
+                ctx.lineWidth = 12; ctx.strokeStyle = '#FFFFFF'; ctx.strokeText('Saya', 480, 150);
+                ctx.fillStyle = '#FF7043'; ctx.fillText('Saya', 480, 150);
+                ctx.font = '70px sans-serif'; ctx.fillText('⭐', 700, 120); ctx.font = '130px sans-serif'; ctx.fillText('🎓', 860, 180);
+                
+                ctx.font = '900 170px "Inter", sans-serif';
+                ctx.lineWidth = 35; ctx.strokeStyle = '#FFFFFF'; ctx.strokeText('LULUS', 540, textLulusY);
+                ctx.lineWidth = 15; ctx.strokeStyle = '#E65100'; ctx.strokeText('LULUS', 540, textLulusY);
+                const gradLulus = ctx.createLinearGradient(0, textLulusY-140, 0, textLulusY);
+                gradLulus.addColorStop(0, '#FFF59D'); gradLulus.addColorStop(1, '#FFB300');
+                ctx.fillStyle = gradLulus; ctx.fillText('LULUS', 540, textLulusY);
+
+                // Pita Hijau
+                const ribbonY = 320;
+                ctx.fillStyle = '#2E7D32'; 
+                ctx.beginPath(); ctx.moveTo(180, ribbonY+30); ctx.lineTo(150, ribbonY+70); ctx.lineTo(220, ribbonY+60); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(900, ribbonY+30); ctx.lineTo(930, ribbonY+70); ctx.lineTo(860, ribbonY+60); ctx.fill();
+                ctx.fillStyle = '#4CAF50'; 
+                drawRoundRect(ctx, 200, ribbonY, 680, 70, 35);
+                ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5; ctx.fill(); ctx.shadowBlur = 0;
+                ctx.fillStyle = '#FFFFFF'; ctx.font = '900 35px "Inter", sans-serif'; ctx.fillText('SMP NEGERI 1 DAWAN', 540, ribbonY + 48);
+
+                ctx.save(); ctx.translate(880, 380); ctx.rotate(-10 * Math.PI/180);
+                ctx.fillStyle = '#FFFFFF'; drawRoundRect(ctx, -105, -45, 210, 90, 15); ctx.fill();
+                ctx.fillStyle = '#EC4899'; drawRoundRect(ctx, -95, -35, 190, 70, 10); ctx.fill();
+                ctx.fillStyle = '#FFFFFF'; ctx.font = '900 50px "Inter", sans-serif'; ctx.fillText('2026', 0, 15); ctx.restore();
+
+                if (schoolLogo) {
+                    ctx.fillStyle = '#FFFFFF'; ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 15;
+                    ctx.beginPath(); ctx.arc(180, 190, 120, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
+                    ctx.beginPath(); ctx.arc(180, 190, 105, 0, Math.PI*2);
+                    ctx.lineWidth = 4; ctx.strokeStyle = '#2E7D32'; ctx.setLineDash([10, 8]); ctx.stroke(); ctx.setLineDash([]);
+                    ctx.drawImage(schoolLogo, 95, 105, 170, 170);
+                }
+
+                // Nameplate Putih Bawah
+                const plateY = 820;
+                ctx.fillStyle = '#FFFFFF'; ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 15; ctx.shadowOffsetY = 8;
+                drawRoundRect(ctx, 190, plateY, 700, 110, 40); ctx.fill(); ctx.shadowBlur = 0;
+                ctx.lineWidth = 6; ctx.strokeStyle = '#4CAF50'; drawRoundRect(ctx, 190, plateY, 700, 110, 40); ctx.stroke();
+                ctx.lineWidth = 4; ctx.strokeStyle = '#FFCA28'; ctx.setLineDash([15, 10]); drawRoundRect(ctx, 205, plateY+15, 670, 80, 25); ctx.stroke(); ctx.setLineDash([]);
+
+                // Teks Nama (Anti-Lewat Bug Fixed)
+                let namaSiswa = (d?.Nama_Siswa || 'Nama Siswa').toUpperCase();
+                ctx.fillStyle = '#2E7D32';
+                let fontSize = 40;
+                ctx.font = `bold ${fontSize}px "Inter", sans-serif`;
+                while (ctx.measureText(namaSiswa).width > 650 && fontSize > 20) {
+                    fontSize -= 2;
+                    ctx.font = `bold ${fontSize}px "Inter", sans-serif`;
+                }
+                ctx.fillText(namaSiswa, 540, plateY + 68);
+
+                const pinkRibbonY = 940;
+                ctx.fillStyle = '#E91E63'; 
+                drawRoundRect(ctx, 220, pinkRibbonY, 640, 60, 30);
+                ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.fill(); ctx.shadowBlur = 0;
+                ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 30px "Inter", sans-serif'; ctx.fillText('🌿 Cerdas, Terampil, Berkarakter 🌿', 540, pinkRibbonY + 42);
+
+                ctx.font = '160px sans-serif'; ctx.fillText('🙋🏻‍♂️', 160, 780); ctx.font = '130px sans-serif'; ctx.fillText('📜', 120, 940); 
+                ctx.font = '160px sans-serif'; ctx.fillText('🙋🏻‍♀️', 920, 780); ctx.font = '130px sans-serif'; ctx.fillText('🏆', 960, 940);
             }
 
             return cvs.toDataURL('image/jpeg', 0.95);
@@ -1104,7 +1095,7 @@
             if(!generatedTwibbonURL) return;
             const d = currentUserData;
             const link = document.createElement('a');
-            link.download = `Twibbon_Premium_${d?.NISN || '123'}.jpg`;
+            link.download = `Twibbon_Lulus_${d?.NISN || '123'}.jpg`;
             link.href = generatedTwibbonURL;
             link.click();
             
