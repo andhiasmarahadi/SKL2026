@@ -528,8 +528,9 @@
         // ==========================================
         // KONFIGURASI APLIKASI UTAMA
         // ==========================================
-        const IS_PREVIEW = false; // UBAH KE FALSE SAAT DEPLOY KE BLOGGER
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxkZDGG31MzMc9LUo52HKtoETRsgLDd-jrJKqW0VavXQx61-x8Szbt4vViqIxqbcjNi/exec";
+        // UBAH IS_PREVIEW KE false JIKA AKAN DI-DEPLOY KE BLOGGER
+        const IS_PREVIEW = false; 
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxkZDGG31MzMc9LUo52HKtoETRsgLDd-jrJKqW0VavXQx61-x8Szbt4vViqIxqbcjNi/exec"; // Ganti saat deploy akhir
 
         let targetDate = new Date().getTime() + (1000 * 5); // Dummy 5 detik untuk preview
         let countdownInterval;
@@ -869,7 +870,7 @@
         }
 
         // ========================================================
-        // ENGINE TWIBBON MANDIRI (100% PURE CANVAS DESAIN BARU)
+        // ENGINE TWIBBON MANDIRI (REVISI DESAIN PREMIUM)
         // ========================================================
         async function createTwibbonMandiri(photoDataUrl) {
             const cvs = document.createElement('canvas');
@@ -884,39 +885,53 @@
             ]);
 
             // ==========================================
-            // 1. BACKGROUND GRADIENT CERIA (Light Blue to Soft Mint/Yellow)
+            // 1. BACKGROUND GRADIENT PREMIUM
             // ==========================================
             const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1080);
-            bgGrad.addColorStop(0, '#E0F2FE'); // Light Sky Blue
-            bgGrad.addColorStop(0.5, '#FEF9C3'); // Soft Yellow
-            bgGrad.addColorStop(1, '#FCE7F3'); // Soft Pink
+            bgGrad.addColorStop(0, '#F0F9FF'); // Light Blue
+            bgGrad.addColorStop(0.5, '#FEF08A'); // Soft Yellow
+            bgGrad.addColorStop(1, '#E0E7FF'); // Light Indigo
             ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, 1080, 1080);
 
             // ==========================================
-            // 2. POLA DEKORATIF (Blobs & Polkadot)
+            // 2. POLA DEKORATIF
             // ==========================================
-            // Polkadot Halftone Transparan
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-            for(let i=0; i<1080; i+=45) {
-                for(let j=0; j<1080; j+=45) {
-                    ctx.beginPath(); ctx.arc(i, j, 4, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            for(let i=0; i<1080; i+=40) {
+                for(let j=0; j<1080; j+=40) {
+                    ctx.beginPath(); ctx.arc(i, j, 3, 0, Math.PI*2); ctx.fill();
                 }
             }
             
             // Abstract Blobs
-            ctx.fillStyle = 'rgba(251, 191, 36, 0.2)'; // Yellow blob
-            ctx.beginPath(); ctx.arc(100, 850, 300, 0, Math.PI*2); ctx.fill();
-            
-            ctx.fillStyle = 'rgba(56, 189, 248, 0.2)'; // Blue blob
-            ctx.beginPath(); ctx.arc(950, 250, 250, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.15)'; 
+            ctx.beginPath(); ctx.arc(100, 950, 400, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = 'rgba(236, 72, 153, 0.1)';
+            ctx.beginPath(); ctx.arc(950, 150, 350, 0, Math.PI*2); ctx.fill();
 
             // ==========================================
             // 3. FOTO SISWA LINGKARAN & BINGKAI PRESISI
             // ==========================================
+            // Posisi diatur turun sedikit (Y = 530) agar area Header sangat lega
             const photoCx = 540; 
-            const photoCy = 480; 
-            const photoRadius = 360;
+            const photoCy = 530; 
+            const photoRadius = 330;
+
+            // Bingkai Luar (Emas/Kuning)
+            ctx.beginPath();
+            ctx.arc(photoCx, photoCy, photoRadius + 22, 0, Math.PI * 2);
+            ctx.fillStyle = '#FBBF24'; // Amber-400
+            ctx.shadowColor = 'rgba(0,0,0,0.2)'; 
+            ctx.shadowBlur = 25; 
+            ctx.fill();
+            ctx.shadowBlur = 0; // Reset
+
+            // Bingkai Dalam (Putih)
+            ctx.beginPath();
+            ctx.arc(photoCx, photoCy, photoRadius + 8, 0, Math.PI * 2);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
 
             // Gambar Foto Terpotong Rapi (Auto-Center Crop)
             if(userPhoto) {
@@ -946,70 +961,72 @@
                 ctx.beginPath(); ctx.arc(photoCx, photoCy, photoRadius, 0, Math.PI * 2); ctx.fill();
             }
 
-            // Bingkai Putih Solid (Outer Shadow)
-            ctx.lineWidth = 30; 
-            ctx.strokeStyle = '#FFFFFF';
-            ctx.beginPath(); 
-            ctx.arc(photoCx, photoCy, photoRadius, 0, Math.PI*2);
-            ctx.shadowColor = 'rgba(0,0,0,0.15)'; 
-            ctx.shadowBlur = 20; 
-            ctx.stroke(); 
-            ctx.shadowBlur = 0; // Reset
+            // ==========================================
+            // 4. LOGO SEKOLAH (Kiri Atas) - 100% AMAN
+            // ==========================================
+            if (schoolLogo) {
+                const logoX = 130, logoY = 120, logoRadius = 60;
+                ctx.fillStyle = '#FFFFFF'; 
+                ctx.shadowColor = 'rgba(0,0,0,0.15)'; ctx.shadowBlur = 15;
+                ctx.beginPath(); ctx.arc(logoX, logoY, logoRadius + 10, 0, Math.PI*2); ctx.fill(); 
+                ctx.shadowBlur = 0; // Reset
 
-            // Bingkai Dash Pink Cerah
-            ctx.lineWidth = 10; 
-            ctx.strokeStyle = '#EC4899'; // Vibrant Pink
-            ctx.setLineDash([20, 15]); 
-            ctx.beginPath(); 
-            ctx.arc(photoCx, photoCy, photoRadius + 25, 0, Math.PI*2); 
-            ctx.stroke(); 
-            ctx.setLineDash([]); // Reset dash
+                ctx.drawImage(schoolLogo, logoX - logoRadius, logoY - logoRadius, logoRadius*2, logoRadius*2);
+            }
 
             // ==========================================
-            // 4. TEKS HEADER UTAMA ("SAYA LULUS")
+            // 5. TEKS HEADER UTAMA
             // ==========================================
-            const textY = 160;
+            const textY = 100;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.font = '900 110px "Inter", sans-serif';
             
             // Efek 3D Stroke Putih Tebal
-            ctx.lineWidth = 25; 
+            ctx.font = '900 85px "Inter", sans-serif';
+            ctx.lineWidth = 18; 
             ctx.strokeStyle = '#FFFFFF';
             ctx.strokeText('SAYA LULUS!', 540, textY);
             
-            // Warna Orange Gradien
-            const gradLulus = ctx.createLinearGradient(0, textY-60, 0, textY+60);
-            gradLulus.addColorStop(0, '#FCD34D'); // Yellow
-            gradLulus.addColorStop(1, '#F59E0B'); // Orange
+            // Warna Biru Gradien
+            const gradLulus = ctx.createLinearGradient(0, textY-40, 0, textY+40);
+            gradLulus.addColorStop(0, '#2563EB'); // Blue 600
+            gradLulus.addColorStop(1, '#1E3A8A'); // Blue 900
             ctx.fillStyle = gradLulus;
             ctx.fillText('SAYA LULUS!', 540, textY);
 
+            // Sub Header
+            ctx.font = '800 24px "Inter", sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.fillText('PENGUMUMAN KELULUSAN TAHUN 2026', 540, textY + 60);
+
             // ==========================================
-            // 5. BANNER NAMA (NAMEPLATE) DI BAWAH
+            // 6. BANNER NAMA (Bawah)
             // ==========================================
-            const bannerY = 850;
-            const bannerW = 800;
-            const bannerH = 130;
+            const bannerY = 900;
+            const bannerW = 860;
+            const bannerH = 100;
             const bannerX = (1080 - bannerW) / 2;
 
             // Lapisan Shadow/3D Background (Biru Gelap)
             ctx.fillStyle = '#1E3A8A';
-            drawRoundRect(ctx, bannerX, bannerY + 12, bannerW, bannerH, 65); 
+            drawRoundRect(ctx, bannerX, bannerY + 12, bannerW, bannerH, 50); 
             ctx.fill();
 
-            // Lapisan Depan (Biru Terang / Indigo)
-            ctx.fillStyle = '#3B82F6'; 
-            drawRoundRect(ctx, bannerX, bannerY, bannerW, bannerH, 65); 
+            // Lapisan Depan (Indigo Terang)
+            const gradBanner = ctx.createLinearGradient(bannerX, 0, bannerX + bannerW, 0);
+            gradBanner.addColorStop(0, '#4F46E5'); // Indigo 600
+            gradBanner.addColorStop(1, '#2563EB'); // Blue 600
+            ctx.fillStyle = gradBanner; 
+            drawRoundRect(ctx, bannerX, bannerY, bannerW, bannerH, 50); 
             ctx.fill();
 
-            // Teks Nama (Algoritma Auto Shrink - Tidak Akan Meluber)
+            // Teks Nama (Algoritma Auto Shrink)
             const namaSiswa = (d?.Nama_Siswa || 'SISWA BERPRESTASI').toUpperCase();
-            let fontSize = 55;
+            let fontSize = 48;
             ctx.font = `900 ${fontSize}px "Inter", sans-serif`;
-            const maxNameWidth = bannerW - 100;
+            const maxNameWidth = bannerW - 80;
 
-            while (ctx.measureText(namaSiswa).width > maxNameWidth && fontSize > 25) {
+            while (ctx.measureText(namaSiswa).width > maxNameWidth && fontSize > 20) {
                 fontSize -= 2;
                 ctx.font = `900 ${fontSize}px "Inter", sans-serif`;
             }
@@ -1018,49 +1035,36 @@
             ctx.shadowColor = 'rgba(0,0,0,0.2)'; 
             ctx.shadowBlur = 5; 
             ctx.shadowOffsetY = 3;
-            ctx.fillText(namaSiswa, 540, bannerY + 65);
+            ctx.fillText(namaSiswa, 540, bannerY + 50);
             ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; // Reset
 
             // Subteks Sekolah & Angkatan
-            ctx.fillStyle = '#1E293B'; // Dark Slate
-            ctx.font = '800 24px "Inter", sans-serif';
-            ctx.fillText('ANGKATAN 2026 • SMP NEGERI 1 DAWAN', 540, 1020);
+            ctx.fillStyle = '#0F172A'; // Slate 900
+            ctx.font = '800 22px "Inter", sans-serif';
+            ctx.fillText('SMP NEGERI 1 DAWAN', 540, 1040);
 
             // ==========================================
-            // 6. EMOJI DEKORASI & BADGE ANGKATAN
+            // 7. EMOJI DEKORASI & BADGE ANGKATAN
             // ==========================================
-            // Topi Toga di pojok kanan foto
-            ctx.font = '160px sans-serif';
-            ctx.save(); ctx.translate(850, 260); ctx.rotate(15 * Math.PI/180); ctx.fillText('🎓', 0, 0); ctx.restore();
+            // Topi Toga
+            ctx.font = '140px sans-serif';
+            ctx.save(); ctx.translate(880, 320); ctx.rotate(15 * Math.PI/180); ctx.fillText('🎓', 0, 0); ctx.restore();
 
             // Emoji meriah tersebar
-            ctx.font = '120px sans-serif';
-            ctx.fillText('✨', 220, 250);
-            ctx.fillText('🎉', 180, 800);
-            ctx.fillText('🏅', 900, 820);
+            ctx.font = '100px sans-serif';
+            ctx.fillText('✨', 200, 260);
+            ctx.fillText('🎉', 160, 800);
+            ctx.fillText('🏅', 920, 820);
 
             // Badge Angkatan Kanan Atas
             ctx.save();
-            ctx.translate(920, 140);
+            ctx.translate(930, 110);
             ctx.rotate(10 * Math.PI/180);
-            ctx.fillStyle = '#FFFFFF'; drawRoundRect(ctx, -100, -40, 200, 80, 20); ctx.fill();
-            ctx.fillStyle = '#10B981'; drawRoundRect(ctx, -90, -30, 180, 60, 15); ctx.fill(); // Emerald Green
-            ctx.fillStyle = '#FFFFFF'; ctx.font = '900 35px "Inter", sans-serif'; ctx.fillText('CLASS OF', 0, -5);
-            ctx.fillStyle = '#FDE047'; ctx.fillText('2026', 0, 25);
+            ctx.fillStyle = '#FFFFFF'; drawRoundRect(ctx, -90, -40, 180, 80, 20); ctx.fill();
+            ctx.fillStyle = '#10B981'; drawRoundRect(ctx, -80, -30, 160, 60, 15); ctx.fill(); // Emerald Green
+            ctx.fillStyle = '#FFFFFF'; ctx.font = '900 26px "Inter", sans-serif'; ctx.fillText('CLASS OF', 0, -8);
+            ctx.fillStyle = '#FDE047'; ctx.font = '900 30px "Inter", sans-serif'; ctx.fillText('2026', 0, 22);
             ctx.restore();
-
-            // ==========================================
-            // 7. LOGO SEKOLAH (Kiri Atas)
-            // ==========================================
-            if (schoolLogo) {
-                const logoX = 140, logoY = 140, logoRadius = 70;
-                ctx.fillStyle = '#FFFFFF'; 
-                ctx.shadowColor = 'rgba(0,0,0,0.15)'; ctx.shadowBlur = 15;
-                ctx.beginPath(); ctx.arc(logoX, logoY, logoRadius + 10, 0, Math.PI*2); ctx.fill(); 
-                ctx.shadowBlur = 0; // Reset
-
-                ctx.drawImage(schoolLogo, logoX - logoRadius, logoY - logoRadius, logoRadius*2, logoRadius*2);
-            }
 
             return cvs.toDataURL('image/jpeg', 0.95);
         }
